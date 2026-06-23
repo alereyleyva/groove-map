@@ -21,13 +21,23 @@ The app must never upload audio, metadata, analysis, or user configuration to an
 
 ## Canonical Specs
 
+- Specs index: `specs/README.md`
 - Product spec: `specs/product.md`
 - Architecture spec: `specs/architecture.md`
 - Data model spec: `specs/data-model.md`
-- Matching spec: `specs/matching.md`
 - Testing spec: `specs/testing.md`
+- Gap analysis: `specs/gap-analysis.md`
+- Bounded context specs live under `specs/contexts/` and are the primary source for feature behavior:
+- Ingestion: `specs/contexts/ingestion.md`
+- Library: `specs/contexts/library.md`
+- Tagging: `specs/contexts/tagging.md`
+- Analysis: `specs/contexts/analysis.md`
+- Matching: `specs/contexts/matching.md`
+- Sets: `specs/contexts/sets.md`
+- Set Builder: `specs/contexts/set-builder.md`
+- Settings and Privacy: `specs/contexts/settings-privacy.md`
 
-When behavior changes, update the relevant spec in the same atomic change or before the implementation commit.
+When behavior changes, update the relevant bounded context spec in the same atomic change or before the implementation commit. If a task closes or creates a known product gap, update `specs/gap-analysis.md` as well.
 
 ## Setup Commands
 

@@ -29,3 +29,7 @@ GrooveMap is a local-first desktop app for techno DJs who manage downloaded musi
 - Fast table-first workflow.
 - Clear filters and keyboard-friendly controls.
 - Explain recommendations with musical reasoning.
+
+## Bounded Context Specs
+
+Detailed product behavior is specified by bounded context under `specs/contexts/`. This file only defines the product-level intent and MVP boundary.

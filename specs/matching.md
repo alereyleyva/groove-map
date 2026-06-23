@@ -1,5 +1,9 @@
 # GrooveMap Matching Spec
 
+Canonical matching behavior now lives in `specs/contexts/matching.md`. This file remains as a compatibility pointer for older references.
+
+---
+
 `calculate_match(track_a, track_b, context)` returns a 0-100 score, confidence, component scores, and a short explanation.
 
 ## Default Weights
