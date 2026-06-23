@@ -1,33 +1,48 @@
 import { useEffect, useState } from "react";
-import { Button, Input, Select } from "../../components/ui";
+import { Button, Stat } from "../../components/ui";
 import { api } from "../../lib/tauri";
 import { useAppStore } from "../../state/app-state";
 
 export function SettingsView() {
-  const [settings, setSettings] = useState({ theme: "dark", defaultBpmMin: 128, defaultBpmMax: 134, analysisConcurrency: 2 });
-  const { setStatusMessage } = useAppStore();
+  const [settingsCount, setSettingsCount] = useState(0);
+  const { queue, setQueue, setStatusMessage } = useAppStore();
 
-  useEffect(() => {
-    api.getSettings().then((value) => setSettings((current) => ({ ...current, ...value } as typeof current))).catch((error) => setStatusMessage(String(error)));
-  }, []);
-
-  async function save() {
-    await api.updateSettings(settings);
-    setStatusMessage("Settings saved locally.");
+  async function refreshLocalState() {
+    const [settings, queueStatus] = await Promise.all([api.getSettings(), api.getAnalysisQueueStatus()]);
+    setSettingsCount(Object.keys(settings).length);
+    setQueue(queueStatus);
+    setStatusMessage("Local privacy state refreshed.");
   }
 
+  useEffect(() => {
+    refreshLocalState().catch((error) => setStatusMessage(String(error)));
+  }, []);
+
   return (
-    <div className="max-w-2xl space-y-4 p-4">
-      <h1 className="text-xl font-semibold text-zinc-100">Settings</h1>
-      <section className="space-y-3 rounded border border-zinc-800 bg-zinc-950 p-4">
-        <label className="block text-xs uppercase tracking-wide text-zinc-500">Theme</label>
-        <Select value={settings.theme} onChange={(event) => setSettings({ ...settings, theme: event.target.value })}><option value="dark">dark</option><option value="light">light</option><option value="system">system</option></Select>
-        <div className="grid grid-cols-2 gap-2"><Input type="number" value={settings.defaultBpmMin} onChange={(event) => setSettings({ ...settings, defaultBpmMin: Number(event.target.value) })} /><Input type="number" value={settings.defaultBpmMax} onChange={(event) => setSettings({ ...settings, defaultBpmMax: Number(event.target.value) })} /></div>
-        <Input type="number" value={settings.analysisConcurrency} onChange={(event) => setSettings({ ...settings, analysisConcurrency: Number(event.target.value) })} />
-        <Button onClick={save}>Save settings</Button>
+    <div className="max-w-3xl space-y-4 p-4">
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-xl font-semibold text-zinc-100">Privacy</h1>
+          <p className="mt-1 text-sm text-zinc-500">Everything GrooveMap knows about your library stays on this computer.</p>
+        </div>
+        <Button onClick={refreshLocalState}>Refresh local state</Button>
+      </div>
+
+      <section className="grid gap-3 md:grid-cols-3">
+        <Stat label="Local settings" value={settingsCount} />
+        <Stat label="Imported tracks" value={queue?.imported ?? 0} />
+        <Stat label="Pending analysis" value={queue?.pending ?? 0} />
       </section>
-      <section className="rounded border border-zinc-800 bg-zinc-950 p-4 text-sm text-zinc-400">
-        GrooveMap stores all data locally in `groove-map.sqlite`. No audio, metadata, analysis, or settings are uploaded.
+
+      <section className="rounded border border-zinc-800 bg-zinc-950 p-4 text-sm text-zinc-300">
+        <h2 className="mb-3 text-xs font-semibold uppercase tracking-wide text-cyan-300">Privacy guarantees</h2>
+        <ul className="space-y-2">
+          <li>No audio upload paths are implemented.</li>
+          <li>No metadata, tags, analysis, set data, or settings are uploaded.</li>
+          <li>Original audio files are read for scanning and analysis, never modified.</li>
+          <li>The local database is named <code className="text-cyan-200">groove-map.sqlite</code>.</li>
+          <li>Removing a source must never delete files from disk.</li>
+        </ul>
       </section>
     </div>
   );

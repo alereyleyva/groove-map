@@ -14,6 +14,12 @@ Feature: Tagging
     When the user saves a personal note or rating
     Then the note or rating is persisted locally
 
+  Scenario: Save free tags
+    Given a track exists
+    When the user adds or removes free tags
+    Then free tags are persisted locally
+    And free tags remain separate from structured tags
+
   Scenario: Override automatic analysis manually
     Given a track has automatic or missing analysis values
     When the user manually corrects BPM, key, Camelot, or energy
@@ -32,7 +38,5 @@ Feature: Tagging
 
   Scenario: Known tagging gaps
     Then controlled-value tag UI is not complete yet
-    And free tag editor UI is not complete yet
-    And rating editor UI is not complete yet
     And batch tag editing is not complete yet
-    And manual key, mode, and energy editor coverage is not complete yet
+    And manual mode editor coverage is not complete yet

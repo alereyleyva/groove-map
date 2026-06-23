@@ -13,7 +13,6 @@ const builderSchema = z.object({
   bpmMin: z.coerce.number().optional(),
   bpmMax: z.coerce.number().optional(),
   mood: z.string().optional(),
-  energyArc: z.string().optional(),
 });
 
 type BuilderForm = z.infer<typeof builderSchema>;
@@ -21,7 +20,7 @@ type BuilderForm = z.infer<typeof builderSchema>;
 export function SetBuilderView() {
   const [draft, setDraft] = useState<SetDraft | null>(null);
   const { setStatusMessage } = useAppStore();
-  const { register, handleSubmit } = useForm<BuilderForm>({ defaultValues: { name: "90 min hypnotic build", durationTargetMinutes: 90, bpmMin: 128, bpmMax: 134, mood: "hypnotic", energyArc: "slow build" } });
+  const { register, handleSubmit } = useForm<BuilderForm>({ defaultValues: { name: "90 min hypnotic build", durationTargetMinutes: 90, bpmMin: 128, bpmMax: 134, mood: "hypnotic" } });
 
   async function onSubmit(values: BuilderForm) {
     const parsed = builderSchema.parse(values);
@@ -30,7 +29,7 @@ export function SetBuilderView() {
 
   async function saveDraft() {
     if (!draft) return;
-    const set = await api.createSet({ name: draft.name, description: draft.explanation, durationTargetMinutes: Math.round(draft.totalDurationMinutes), context: "practice", energyArc: "slow build", notes: draft.warnings.join("\n") });
+    const set = await api.createSet({ name: draft.name, description: draft.explanation, durationTargetMinutes: Math.round(draft.totalDurationMinutes), context: "practice", notes: draft.warnings.join("\n") });
     for (const track of draft.tracks) await api.addTrackToSet(set.id, track.id);
     setStatusMessage(`Saved draft as set: ${set.name}`);
   }
@@ -43,7 +42,6 @@ export function SetBuilderView() {
         <Input placeholder="Duration minutes" type="number" {...register("durationTargetMinutes")} />
         <div className="grid grid-cols-2 gap-2"><Input placeholder="BPM min" type="number" {...register("bpmMin")} /><Input placeholder="BPM max" type="number" {...register("bpmMax")} /></div>
         <Select {...register("mood")}><option value="hypnotic">hypnotic</option><option value="dark">dark</option><option value="driving">driving</option><option value="raw">raw</option><option value="industrial">industrial</option></Select>
-        <Select {...register("energyArc")}><option value="slow build">slow build</option><option value="wave">wave</option><option value="peak late">peak late</option><option value="dark journey">dark journey</option></Select>
         <Button className="w-full" type="submit">Generate draft</Button>
       </form>
       <section className="min-w-0 overflow-auto rounded border border-zinc-800 bg-zinc-950/80 p-4">

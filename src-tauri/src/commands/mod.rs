@@ -85,8 +85,12 @@ pub async fn get_analysis_queue_status(state: tauri::State<'_, AppState>) -> Res
 pub async fn find_matches_for_track(state: tauri::State<'_, AppState>, track_id: i64, limit: Option<i64>) -> Result<Vec<MatchScore>, String> {
     with_conn(state, |conn| {
         let track = db::get_track(conn, track_id)?;
-        let candidates = db::list_tracks(conn, TrackFilters { search: None, bpm_min: None, bpm_max: None, status: None, limit: Some(1000), offset: Some(0) })?.tracks;
-        let mut scores: Vec<_> = candidates.into_iter().filter(|candidate| candidate.id != track_id).map(|candidate| matching::calculate_match(&track, &candidate)).collect();
+        let candidates = db::list_tracks(conn, TrackFilters { limit: Some(1000), offset: Some(0), ..TrackFilters::default() })?.tracks;
+        let mut scores: Vec<_> = candidates.into_iter()
+            .filter(|candidate| candidate.id != track_id)
+            .filter(|candidate| !candidate.tags.iter().any(|tag| tag.field == "status" && tag.value == "discarded"))
+            .map(|candidate| matching::calculate_match(&track, &candidate))
+            .collect();
         scores.sort_by(|a, b| b.score.partial_cmp(&a.score).unwrap_or(std::cmp::Ordering::Equal));
         scores.truncate(limit.unwrap_or(10).max(1) as usize);
         Ok(scores)

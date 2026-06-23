@@ -1,18 +1,18 @@
 import { create } from "zustand";
-import type { MatchScore, QueueStatus, SetRecord, Track } from "../types/domain";
+import type { MatchRecommendation, QueueStatus, SetRecord, Track } from "../types/domain";
 
-type View = "library" | "sets" | "builder" | "queue" | "tags" | "settings";
+type View = "library" | "sets" | "builder" | "queue" | "settings";
 
 type AppStore = {
   view: View;
   selectedTrack: Track | null;
-  matches: MatchScore[];
+  matches: MatchRecommendation[];
   sets: SetRecord[];
   queue: QueueStatus | null;
   statusMessage: string;
   setView: (view: View) => void;
   setSelectedTrack: (track: Track | null) => void;
-  setMatches: (matches: MatchScore[]) => void;
+  setMatches: (matches: MatchRecommendation[]) => void;
   setSets: (sets: SetRecord[]) => void;
   setQueue: (queue: QueueStatus | null) => void;
   setStatusMessage: (message: string) => void;

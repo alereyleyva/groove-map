@@ -79,12 +79,19 @@ pub struct ScanResult {
     pub errors: Vec<String>,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct TrackFilters {
     pub search: Option<String>,
     pub bpm_min: Option<f64>,
     pub bpm_max: Option<f64>,
+    pub key: Option<String>,
+    pub energy_min: Option<f64>,
+    pub energy_max: Option<f64>,
+    pub mood: Option<String>,
+    pub function_tag: Option<String>,
+    pub style: Option<String>,
+    pub groove: Option<String>,
     pub status: Option<String>,
     pub limit: Option<i64>,
     pub offset: Option<i64>,

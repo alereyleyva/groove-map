@@ -55,6 +55,11 @@ Feature: Matching
     When GrooveMap finds matches
     Then the discarded candidate is excluded
 
+  Scenario: Display complete match candidates
+    Given GrooveMap returns match recommendations
+    When the recommendations are displayed in the track detail panel
+    Then each recommendation shows the candidate title, artist, BPM, key, score, indicator, and explanation
+
   Scenario: Known matching gaps
     Then context-aware matching is not complete yet
     And settings-driven weights are not complete yet

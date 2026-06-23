@@ -29,7 +29,7 @@ This document tracks the gap between the original full product proposal and the 
 - Real background analysis queue controls.
 - Advanced audio feature extraction.
 - Virtualized large-library table.
-- Full structured tagging UX.
+- Controlled structured tagging UX.
 - Batch editing.
 - Saved library views.
 - Set drag-and-drop reorder.

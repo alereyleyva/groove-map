@@ -13,7 +13,7 @@ Feature: Library
     Given tracks exist in the local database
     When the user searches by title, artist, or filename
     Then the table only shows matching tracks
-    When the user applies a BPM range or analysis status filter
+    When the user applies a BPM range, key, Camelot, energy range, structured tag, or analysis status filter
     Then the table only shows tracks matching those filters
 
   Scenario: Select a track
@@ -32,7 +32,6 @@ Feature: Library
   Scenario: Known library gaps
     Then table virtualization is not complete yet
     And full sorting UI is not complete yet
-    And key, energy, mood, function, and style filters are not complete yet
     And saved views are not complete yet
     And bulk selection and actions are not complete yet
     And artwork, last played, and times used columns are not complete yet

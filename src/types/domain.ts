@@ -46,6 +46,13 @@ export type TrackFilters = {
   search?: string;
   bpmMin?: number;
   bpmMax?: number;
+  key?: string;
+  energyMin?: number;
+  energyMax?: number;
+  mood?: string;
+  functionTag?: string;
+  style?: string;
+  groove?: string;
   status?: string;
   limit?: number;
   offset?: number;
@@ -94,6 +101,10 @@ export type MatchScore = {
   historyScore: number;
   explanation: string;
   indicator: string;
+};
+
+export type MatchRecommendation = MatchScore & {
+  track: Track;
 };
 
 export type SetTrackRecord = {

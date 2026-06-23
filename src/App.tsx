@@ -1,11 +1,10 @@
-import { Activity, Library, ListMusic, Settings, Tags, WandSparkles } from "lucide-react";
+import { Activity, Library, ListMusic, ShieldCheck, WandSparkles } from "lucide-react";
 import "./App.css";
 import { AnalysisQueueView } from "./features/analysis-queue/AnalysisQueueView";
 import { LibraryView } from "./features/library/LibraryView";
 import { SetBuilderView } from "./features/set-builder/SetBuilderView";
 import { SetsView } from "./features/sets/SetsView";
 import { SettingsView } from "./features/settings/SettingsView";
-import { TagsView } from "./features/tags/TagsView";
 import { TrackDetailPanel } from "./features/track-detail/TrackDetailPanel";
 import { useAppStore } from "./state/app-state";
 
@@ -25,8 +24,7 @@ function App() {
           <NavItem active={view === "sets"} icon={<ListMusic />} label="Sets" onClick={() => setView("sets")} />
           <NavItem active={view === "builder"} icon={<WandSparkles />} label="Set Builder" onClick={() => setView("builder")} />
           <NavItem active={view === "queue"} icon={<Activity />} label="Analysis Queue" onClick={() => setView("queue")} />
-          <NavItem active={view === "tags"} icon={<Tags />} label="Tags" onClick={() => setView("tags")} />
-          <NavItem active={view === "settings"} icon={<Settings />} label="Settings" onClick={() => setView("settings")} />
+          <NavItem active={view === "settings"} icon={<ShieldCheck />} label="Privacy" onClick={() => setView("settings")} />
         </nav>
         <div className="border-t border-zinc-900 p-3 text-xs text-zinc-500">
           <div>Imported: {queue?.imported ?? 0}</div>
@@ -56,7 +54,6 @@ function renderView(view: ReturnType<typeof useAppStore.getState>["view"]) {
   if (view === "sets") return <SetsView />;
   if (view === "builder") return <SetBuilderView />;
   if (view === "queue") return <AnalysisQueueView />;
-  if (view === "tags") return <TagsView />;
   if (view === "settings") return <SettingsView />;
   return <LibraryView />;
 }

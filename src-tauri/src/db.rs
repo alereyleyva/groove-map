@@ -119,6 +119,14 @@ pub fn list_tracks(conn: &Connection, filters: TrackFilters) -> rusqlite::Result
     let search_pattern = format!("%{}%", search);
     let bpm_min = filters.bpm_min.unwrap_or(0.0);
     let bpm_max = filters.bpm_max.unwrap_or(400.0);
+    let key = filters.key.unwrap_or_default();
+    let key_pattern = format!("%{}%", key);
+    let energy_min = filters.energy_min.unwrap_or(0.0);
+    let energy_max = filters.energy_max.unwrap_or(1.0);
+    let mood = filters.mood.unwrap_or_default();
+    let function_tag = filters.function_tag.unwrap_or_default();
+    let style = filters.style.unwrap_or_default();
+    let groove = filters.groove.unwrap_or_default();
     let status = filters.status.unwrap_or_default();
 
     let mut stmt = conn.prepare(
@@ -127,9 +135,15 @@ pub fn list_tracks(conn: &Connection, filters: TrackFilters) -> rusqlite::Result
          WHERE t.deleted_at IS NULL
            AND (?1 = '' OR t.title LIKE ?2 OR t.artist LIKE ?2 OR t.file_name LIKE ?2)
            AND (a.bpm IS NULL OR a.bpm BETWEEN ?3 AND ?4)
-           AND (?5 = '' OR a.status = ?5)",
+           AND (?5 = '' OR a.camelot LIKE ?6 OR a.musical_key LIKE ?6)
+           AND (a.energy_score IS NULL OR a.energy_score BETWEEN ?7 AND ?8)
+           AND (?9 = '' OR EXISTS (SELECT 1 FROM track_tags tag WHERE tag.track_id = t.id AND tag.field = 'mood' AND tag.value = ?9))
+           AND (?10 = '' OR EXISTS (SELECT 1 FROM track_tags tag WHERE tag.track_id = t.id AND tag.field = 'function' AND tag.value = ?10))
+           AND (?11 = '' OR EXISTS (SELECT 1 FROM track_tags tag WHERE tag.track_id = t.id AND tag.field = 'style' AND tag.value = ?11))
+           AND (?12 = '' OR EXISTS (SELECT 1 FROM track_tags tag WHERE tag.track_id = t.id AND tag.field = 'groove' AND tag.value = ?12))
+           AND (?13 = '' OR a.status = ?13)",
     )?;
-    let total = stmt.query_row(params![search, search_pattern, bpm_min, bpm_max, status], |row| row.get(0))?;
+    let total = stmt.query_row(params![search, search_pattern, bpm_min, bpm_max, key, key_pattern, energy_min, energy_max, mood, function_tag, style, groove, status], |row| row.get(0))?;
 
     let mut stmt = conn.prepare(
         "SELECT t.id FROM tracks t
@@ -137,11 +151,17 @@ pub fn list_tracks(conn: &Connection, filters: TrackFilters) -> rusqlite::Result
          WHERE t.deleted_at IS NULL
            AND (?1 = '' OR t.title LIKE ?2 OR t.artist LIKE ?2 OR t.file_name LIKE ?2)
            AND (a.bpm IS NULL OR a.bpm BETWEEN ?3 AND ?4)
-           AND (?5 = '' OR a.status = ?5)
+           AND (?5 = '' OR a.camelot LIKE ?6 OR a.musical_key LIKE ?6)
+           AND (a.energy_score IS NULL OR a.energy_score BETWEEN ?7 AND ?8)
+           AND (?9 = '' OR EXISTS (SELECT 1 FROM track_tags tag WHERE tag.track_id = t.id AND tag.field = 'mood' AND tag.value = ?9))
+           AND (?10 = '' OR EXISTS (SELECT 1 FROM track_tags tag WHERE tag.track_id = t.id AND tag.field = 'function' AND tag.value = ?10))
+           AND (?11 = '' OR EXISTS (SELECT 1 FROM track_tags tag WHERE tag.track_id = t.id AND tag.field = 'style' AND tag.value = ?11))
+           AND (?12 = '' OR EXISTS (SELECT 1 FROM track_tags tag WHERE tag.track_id = t.id AND tag.field = 'groove' AND tag.value = ?12))
+           AND (?13 = '' OR a.status = ?13)
          ORDER BY COALESCE(t.artist, ''), COALESCE(t.title, t.file_name)
-         LIMIT ?6 OFFSET ?7",
+         LIMIT ?14 OFFSET ?15",
     )?;
-    let ids = stmt.query_map(params![search, search_pattern, bpm_min, bpm_max, status, limit, offset], |row| row.get::<_, i64>(0))?
+    let ids = stmt.query_map(params![search, search_pattern, bpm_min, bpm_max, key, key_pattern, energy_min, energy_max, mood, function_tag, style, groove, status, limit, offset], |row| row.get::<_, i64>(0))?
         .collect::<Result<Vec<_>, _>>()?;
     let tracks = ids.into_iter().filter_map(|id| get_track(conn, id).ok()).collect();
     Ok(TrackSummary { tracks, total })
@@ -263,5 +283,31 @@ mod tests {
 
         assert_eq!(track.tags.len(), 1);
         assert_eq!(track.free_tags, vec!["warehouse".to_string()]);
+    }
+
+    #[test]
+    fn filters_tracks_by_key_energy_and_structured_tags() {
+        let conn = Connection::open_in_memory().unwrap();
+        migrate(&conn).unwrap();
+        conn.execute("INSERT INTO tracks(file_path, file_name, file_hash, file_size, title, created_at, updated_at) VALUES ('/dark.mp3', 'dark.mp3', 'hash1', 10, 'Dark Track', 'now', 'now')", []).unwrap();
+        let dark_id = conn.last_insert_rowid();
+        conn.execute("INSERT INTO track_analysis(track_id, analysis_version, status, bpm, camelot, energy_score, created_at, updated_at) VALUES (?1, 1, 'done', 130, '8A', 0.8, 'now', 'now')", [dark_id]).unwrap();
+        conn.execute("INSERT INTO track_tags(track_id, field, value, created_at) VALUES (?1, 'mood', 'dark', 'now')", [dark_id]).unwrap();
+
+        conn.execute("INSERT INTO tracks(file_path, file_name, file_hash, file_size, title, created_at, updated_at) VALUES ('/warm.mp3', 'warm.mp3', 'hash2', 10, 'Warm Track', 'now', 'now')", []).unwrap();
+        let warm_id = conn.last_insert_rowid();
+        conn.execute("INSERT INTO track_analysis(track_id, analysis_version, status, bpm, camelot, energy_score, created_at, updated_at) VALUES (?1, 1, 'done', 124, '2B', 0.3, 'now', 'now')", [warm_id]).unwrap();
+        conn.execute("INSERT INTO track_tags(track_id, field, value, created_at) VALUES (?1, 'mood', 'warm', 'now')", [warm_id]).unwrap();
+
+        let result = list_tracks(&conn, TrackFilters {
+            key: Some("8A".to_string()),
+            energy_min: Some(0.7),
+            energy_max: Some(0.9),
+            mood: Some("dark".to_string()),
+            ..TrackFilters::default()
+        }).unwrap();
+
+        assert_eq!(result.total, 1);
+        assert_eq!(result.tracks[0].id, dark_id);
     }
 }

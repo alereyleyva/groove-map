@@ -66,7 +66,7 @@ pub fn reorder_set_tracks(conn: &Connection, request: ReorderSetTracksRequest) -
 }
 
 pub fn generate_set_draft(conn: &Connection, request: GenerateSetDraftRequest) -> rusqlite::Result<SetDraft> {
-    let filters = TrackFilters { search: None, bpm_min: request.bpm_min, bpm_max: request.bpm_max, status: Some("done".to_string()), limit: Some(1000), offset: Some(0) };
+    let filters = TrackFilters { bpm_min: request.bpm_min, bpm_max: request.bpm_max, status: Some("done".to_string()), limit: Some(1000), offset: Some(0), ..TrackFilters::default() };
     let mut tracks = list_tracks(conn, filters)?.tracks;
     tracks.retain(|track| !request.excluded_track_ids.contains(&track.id));
     tracks.retain(|track| !track.tags.iter().any(|tag| tag.field == "status" && tag.value == "discarded"));
