@@ -1,51 +1,40 @@
-# Set Builder Context Spec
+# language: en
 
-## Purpose
+Feature: Set Builder
+  Set Builder owns assisted generation of draft sets from library constraints and DJ intent.
 
-Set Builder owns assisted generation of draft sets from library constraints and DJ intent.
+  Scenario: Configure a set draft
+    Given the user wants an assisted set draft
+    When the user chooses duration target, BPM range, dominant mood, energy arc, required tracks, excluded tracks, starting track, ending track, and wildcard allowance
+    Then those constraints are used by the draft generation algorithm
 
-## Current Implementation
+  Scenario: Generate a compatible draft
+    Given enough eligible tracks exist
+    When GrooveMap generates a draft set
+    Then selected tracks avoid abrupt BPM jumps
+    And selected tracks maintain tonal compatibility where possible
+    And selected tracks respect the target energy arc
+    And selected tracks avoid repeating artists too closely
+    And selected tracks prioritize high ratings
+    And selected tracks exclude discarded tracks
+    And selected tracks favor easy or medium mixability
 
-- UI form accepts name, duration, BPM range, mood, and energy arc.
-- Backend `generate_set_draft` selects compatible analyzed tracks heuristically.
-- Draft can be saved as a set.
+  Scenario: Save a draft as a set
+    Given a draft has been generated
+    When the user saves it as a set
+    Then a set is created locally
+    And the generated track order is preserved
 
-## Required Inputs
+  Scenario: Explain draft risks
+    Given a draft contains risky transitions or incomplete data
+    Then GrooveMap explains the overall arc
+    And GrooveMap lists notable risks and warnings
 
-- Duration target.
-- BPM range.
-- Dominant mood.
-- Energy arc.
-- Required tracks.
-- Excluded tracks.
-- Starting track.
-- Ending track.
-- Wildcard allowance.
-
-## Required Algorithm Behavior
-
-- Select compatible tracks.
-- Avoid abrupt BPM jumps.
-- Maintain tonal compatibility where possible.
-- Respect energy arc.
-- Avoid repeating artists too closely.
-- Prioritize highly rated tracks.
-- Exclude discarded tracks.
-- Favor mixability easy/medium.
-- Allow explicit wildcards for contrast.
-
-## Gap To Proposal
-
-- Required/excluded/start/end tracks are not exposed in UI.
-- Artist spacing is not implemented yet.
-- Wildcard logic is not implemented yet.
-- Energy arc behavior is shallow.
-- Key progression is not enforced.
-- Draft explanations are generic.
-- No BPM/energy chart in draft result yet.
-
-## Acceptance Criteria
-
-- Generated draft reaches target duration when enough eligible tracks exist.
-- Draft explains overall arc and notable risks.
-- User can save a draft and receive the same ordered tracks in Sets.
+  Scenario: Known set builder gaps
+    Then required, excluded, start, and end track UI is not complete yet
+    And artist spacing is not complete yet
+    And wildcard logic is not complete yet
+    And energy arc behavior is shallow
+    And key progression enforcement is not complete yet
+    And draft explanations are generic
+    And BPM and energy charts are not complete yet

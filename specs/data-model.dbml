@@ -1,0 +1,198 @@
+Project groove_map {
+  database_type: 'SQLite'
+  Note: 'Canonical local database model. Database file name: groove-map.sqlite.'
+}
+
+Table sources {
+  id integer [pk, increment]
+  path text [not null, unique]
+  name text [not null]
+  recursive boolean [not null, default: true]
+  created_at text [not null]
+  updated_at text [not null]
+  last_scan_at text
+}
+
+Table tracks {
+  id integer [pk, increment]
+  source_id integer [ref: > sources.id]
+  file_path text [not null, unique]
+  file_name text [not null]
+  file_hash text [not null]
+  title text
+  artist text
+  album text
+  genre text
+  year integer
+  duration_seconds real
+  sample_rate integer
+  bitrate integer
+  format text
+  file_size integer [not null, default: 0]
+  modified_at text
+  artwork_path text
+  created_at text [not null]
+  updated_at text [not null]
+  deleted_at text
+
+  Indexes {
+    title [name: 'idx_tracks_title']
+    artist [name: 'idx_tracks_artist']
+  }
+}
+
+Table track_analysis {
+  id integer [pk, increment]
+  track_id integer [not null, unique, ref: > tracks.id]
+  analysis_version integer [not null, default: 1]
+  status text [not null, default: 'pending', note: 'pending, analyzing, done, failed, skipped']
+  error_message text
+  bpm real
+  bpm_confidence real
+  bpm_source text [note: 'metadata, analysis, manual']
+  musical_key text
+  mode text
+  camelot text
+  key_source text [note: 'metadata, analysis, manual']
+  loudness real
+  peak_level real
+  rms real
+  dynamic_range real
+  energy_score real
+  energy_source text [note: 'analysis, manual']
+  danceability_score real
+  percussiveness_score real
+  brightness_score real
+  darkness_score real
+  low_end_intensity real
+  kick_density real
+  spectral_centroid real
+  spectral_contrast real
+  intro_start real
+  intro_end real
+  main_start real
+  breakdown_start real
+  breakdown_end real
+  outro_start real
+  outro_end real
+  created_at text [not null]
+  updated_at text [not null]
+
+  Indexes {
+    bpm [name: 'idx_track_analysis_bpm']
+    camelot [name: 'idx_track_analysis_camelot']
+    status [name: 'idx_track_analysis_status']
+  }
+}
+
+Table track_tags {
+  id integer [pk, increment]
+  track_id integer [not null, ref: > tracks.id]
+  field text [not null]
+  value text [not null]
+  created_at text [not null]
+
+  Indexes {
+    (field, value) [name: 'idx_track_tags_field_value']
+  }
+}
+
+Table track_free_tags {
+  id integer [pk, increment]
+  track_id integer [not null, ref: > tracks.id]
+  tag text [not null]
+  created_at text [not null]
+}
+
+Table track_notes {
+  id integer [pk, increment]
+  track_id integer [not null, unique, ref: > tracks.id]
+  note text [not null]
+  created_at text [not null]
+  updated_at text [not null]
+}
+
+Table track_ratings {
+  id integer [pk, increment]
+  track_id integer [not null, unique, ref: > tracks.id]
+  rating integer
+  created_at text [not null]
+  updated_at text [not null]
+}
+
+Table sets {
+  id integer [pk, increment]
+  name text [not null]
+  description text
+  context text
+  duration_target_minutes integer
+  energy_arc text
+  bpm_min real
+  bpm_max real
+  notes text
+  created_at text [not null]
+  updated_at text [not null]
+}
+
+Table set_tracks {
+  id integer [pk, increment]
+  set_id integer [not null, ref: > sets.id]
+  track_id integer [not null, ref: > tracks.id]
+  position integer [not null]
+  locked boolean [not null, default: false]
+  transition_note text
+  transition_score real
+  created_at text [not null]
+  updated_at text [not null]
+
+  Indexes {
+    (set_id, track_id) [unique]
+  }
+}
+
+Table match_scores {
+  id integer [pk, increment]
+  track_a_id integer [not null, ref: > tracks.id]
+  track_b_id integer [not null, ref: > tracks.id]
+  score real [not null]
+  confidence real [not null]
+  bpm_score real
+  key_score real
+  energy_score real
+  mood_score real
+  function_score real
+  groove_score real
+  spectral_score real
+  history_score real
+  explanation text [not null]
+  analysis_version integer [not null, default: 1]
+  created_at text [not null]
+  updated_at text [not null]
+
+  Indexes {
+    (track_a_id, track_b_id, analysis_version) [unique]
+  }
+}
+
+Table play_history {
+  id integer [pk, increment]
+  track_id integer [not null, ref: > tracks.id]
+  set_id integer [ref: > sets.id]
+  played_at text [not null]
+  context text
+  notes text
+}
+
+Table saved_views {
+  id integer [pk, increment]
+  name text [not null]
+  filters_json text [not null]
+  sort_json text
+  created_at text [not null]
+  updated_at text [not null]
+}
+
+Table app_settings {
+  key text [pk]
+  value text [not null]
+}

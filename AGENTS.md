@@ -9,6 +9,8 @@ The app must never upload audio, metadata, analysis, or user configuration to an
 ## Mandatory Workflow
 
 - Always apply SDD: specs are canonical and implementation must stay synchronized with `specs/`.
+- Behavior specs must be written in Gherkin format: `Feature`, `Scenario`, `Given`, `When`, `Then`.
+- The canonical data model must be written in DBML at `specs/data-model.dbml`.
 - Always use TDD: write or update tests before production behavior changes where feasible, then make tests pass.
 - Keep code Clean Code and SOLID: small cohesive modules, explicit boundaries, dependency direction inward.
 - Use Clean Architecture for both frontend and Rust backend.
@@ -24,7 +26,7 @@ The app must never upload audio, metadata, analysis, or user configuration to an
 - Specs index: `specs/README.md`
 - Product spec: `specs/product.md`
 - Architecture spec: `specs/architecture.md`
-- Data model spec: `specs/data-model.md`
+- Data model spec: `specs/data-model.dbml`
 - Testing spec: `specs/testing.md`
 - Gap analysis: `specs/gap-analysis.md`
 - Bounded context specs live under `specs/contexts/` and are the primary source for feature behavior:

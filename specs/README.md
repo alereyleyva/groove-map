@@ -2,6 +2,8 @@
 
 Specs are canonical. Implementation must stay synchronized with these documents.
 
+Behavior specs use Gherkin (`Feature`, `Scenario`, `Given`, `When`, `Then`). The data model uses DBML.
+
 ## Bounded Contexts
 
 - `contexts/ingestion.md`: local source selection, scanning, hashing, metadata import.
@@ -16,6 +18,6 @@ Specs are canonical. Implementation must stay synchronized with these documents.
 ## Cross-Cutting Specs
 
 - `architecture.md`: architecture and dependency rules.
-- `data-model.md`: canonical SQLite model.
+- `data-model.dbml`: canonical SQLite model in DBML.
 - `testing.md`: required verification and TDD expectations.
 - `gap-analysis.md`: known gap between the original product proposal and current MVP.

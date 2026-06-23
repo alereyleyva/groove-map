@@ -1,38 +1,38 @@
-# Library Context Spec
+# language: en
 
-## Purpose
+Feature: Library
+  Library owns track exploration, dense table display, search, filters, selection, and track detail access.
 
-Library owns track exploration, dense table display, search, filters, selection, and track detail access.
+  Scenario: Display the main library table
+    Given tracks exist in the local database
+    When the user opens Library
+    Then tracks are displayed in a dense dark table
+    And the table includes title, artist, BPM, key, energy, mood, function, style, duration, rating, status, and path in the current MVP
 
-## Current Implementation
+  Scenario: Filter library tracks
+    Given tracks exist in the local database
+    When the user searches by title, artist, or filename
+    Then the table only shows matching tracks
+    When the user applies a BPM range or analysis status filter
+    Then the table only shows tracks matching those filters
 
-- Main `Library` view uses TanStack Table.
-- Table displays title, artist, BPM, key, energy, mood, function, style, duration, rating, status, and path.
-- Search filters title, artist, and filename.
-- BPM min/max and analysis status filters are available.
-- Selecting a track opens the detail panel and loads top matches.
+  Scenario: Select a track
+    Given the user is viewing Library
+    When the user selects a track
+    Then the track detail panel opens
+    And GrooveMap loads top matches for that track
 
-## Required Behavior
+  Scenario: Required complete library behavior
+    Then the final table includes artwork, title, artist, BPM, key, Camelot, energy, mood, function, style, groove, duration, rating, last played, times used, tags, file path, and analysis status
+    And the final UI supports sorting by any column
+    And the final UI supports filters for BPM, key or Camelot, energy, mood, function, style, analysis status, and text search
+    And saved views are persisted locally
+    And bulk actions support tag edit, reanalysis, add to set, favorite, and discarded
 
-- Table should support large collections without blocking UI.
-- Columns required by product: artwork, title, artist, BPM, key, Camelot, energy, mood, function, style, groove, duration, rating, last played, times used, tags, path, analysis status.
-- Filters required by product: BPM, key/Camelot, energy, mood, function, style, analysis status, text search.
-- Saved views and favorite filters must be persisted locally.
-- Bulk actions must support tag edit, reanalysis, add to set, favorite, discarded.
-
-## Gap To Proposal
-
-- No virtualization yet.
-- No sorting UI wired beyond base table model.
-- Missing key/Camelot, energy, mood, function, style filters.
-- Missing saved views.
-- Missing bulk selection/actions.
-- Missing artwork column.
-- Missing last played and times used columns.
-- Track match cards currently show target IDs, not full candidate metadata.
-
-## Acceptance Criteria
-
-- 10,000-track libraries remain responsive.
-- User can save a filtered view and reload it.
-- User can select multiple tracks and apply a structured tag in batch.
+  Scenario: Known library gaps
+    Then table virtualization is not complete yet
+    And full sorting UI is not complete yet
+    And key, energy, mood, function, and style filters are not complete yet
+    And saved views are not complete yet
+    And bulk selection and actions are not complete yet
+    And artwork, last played, and times used columns are not complete yet

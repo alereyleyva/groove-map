@@ -1,35 +1,33 @@
-# GrooveMap Product Spec
+# language: en
 
-GrooveMap is a local-first desktop app for techno DJs who manage downloaded music collections and prepare coherent sets.
+Feature: GrooveMap product intent
+  GrooveMap is a local-first desktop app for techno DJs who manage downloaded music collections and prepare coherent sets.
 
-## MVP Goals
+  Background:
+    Given the user is a techno DJ with local audio files
+    And GrooveMap stores all state locally
+    And GrooveMap never uploads audio, metadata, analysis, settings, or user configuration
 
-- Select one or more local music folders.
-- Scan supported audio files recursively when requested.
-- Import technical metadata without modifying original files.
-- Persist sources, tracks, analysis state, tags, ratings, notes, sets, and settings locally in SQLite.
-- Explore a large library in a dense dark UI.
-- Edit structured DJ-specific tags and manual overrides for BPM, key, Camelot, and energy.
-- Create ordered sets, add tracks, reorder them, and export CSV, JSON, and M3U.
-- Calculate explainable compatibility scores between tracks.
-- Suggest at least 10 candidate matches for a selected track when enough library data exists.
+  Scenario: MVP supports local DJ library preparation
+    When the user selects one or more local music folders
+    Then GrooveMap scans supported audio files
+    And GrooveMap imports metadata without modifying original files
+    And GrooveMap persists sources, tracks, analysis state, tags, ratings, notes, sets, and settings locally in SQLite
+    And the user can explore tracks in a dense dark library UI
+    And the user can edit structured DJ tags and manual overrides for BPM, key, Camelot, and energy
+    And the user can create ordered sets and export them to CSV, JSON, and M3U
+    And GrooveMap can calculate explainable compatibility scores between tracks
+    And GrooveMap can suggest at least 10 candidate matches when enough library data exists
 
-## Non-Goals For MVP
+  Scenario: MVP avoids fragile non-goals
+    Then GrooveMap does not promise perfect BPM or key detection
+    And GrooveMap does not provide cloud sync
+    And GrooveMap does not behave as a generic streaming player
+    And GrooveMap does not require a Python or C++ sidecar
 
-- Perfect BPM/key detection.
-- Cloud sync.
-- Streaming playback platform features.
-- Uploading audio to any server.
-- Mandatory Python/C++ sidecar.
-
-## UX Principles
-
-- Dark by default.
-- Dense but legible.
-- Fast table-first workflow.
-- Clear filters and keyboard-friendly controls.
-- Explain recommendations with musical reasoning.
-
-## Bounded Context Specs
-
-Detailed product behavior is specified by bounded context under `specs/contexts/`. This file only defines the product-level intent and MVP boundary.
+  Scenario: Product UI feels professional for DJs
+    Then the interface is dark by default
+    And the interface is dense but legible
+    And the primary workflow is table-first
+    And filters are clear and keyboard-friendly
+    And recommendations are explained with musical reasoning

@@ -1,49 +1,45 @@
-# Settings And Privacy Context Spec
+# language: en
 
-## Purpose
+Feature: Settings and Privacy
+  Settings and Privacy owns local preferences, matching weights, analysis defaults, filesystem permissions, database safety, and privacy guarantees.
 
-Settings and Privacy owns local app preferences, matching weights, analysis defaults, filesystem permissions, database safety, and privacy guarantees.
+  Scenario: Store settings locally
+    Given the user changes app settings
+    When the settings are saved
+    Then settings are persisted in the local SQLite database
+    And settings are available after app restart
 
-## Current Implementation
+  Scenario: Preserve privacy guarantees
+    Given GrooveMap imports local music
+    Then GrooveMap never uploads audio files
+    And GrooveMap never uploads metadata
+    And GrooveMap never uploads analysis
+    And GrooveMap never uploads settings
+    And GrooveMap never mutates original audio files
+    And removing a source never deletes files from disk
 
-- Settings can store arbitrary key/value JSON locally in `app_settings`.
-- UI exposes theme, default BPM range, and analysis concurrency placeholders.
-- Tauri dialog/fs capabilities are enabled.
-- App data is local SQLite.
+  Scenario: Configure required settings
+    Then settings include theme as dark, light, or system
+    And settings include default BPM range
+    And settings include default set duration
+    And settings include default analysis concurrency
+    And settings include matching weights
+    And settings include excluded folders
+    And settings include allowed audio formats
+    And settings include manual override priority
+    And settings include database backup
+    And settings include database reset
 
-## Required Settings
+  Scenario: Reset the database safely
+    Given the user requests database reset
+    When GrooveMap asks for explicit confirmation
+    And the user confirms
+    Then local GrooveMap data is reset
+    And original audio files remain untouched
 
-- Theme: dark, light, system.
-- Default BPM range.
-- Default set duration.
-- Default analysis concurrency.
-- Matching weights.
-- Excluded folders.
-- Allowed audio formats.
-- Manual override priority.
-- Backup database.
-- Reset database.
-
-## Privacy Rules
-
-- No audio upload.
-- No metadata upload.
-- No analysis upload.
-- No settings upload.
-- Do not mutate original audio files.
-- Request minimum filesystem permissions.
-- Removing a source must never delete files.
-
-## Gap To Proposal
-
-- Matching weights UI is not implemented yet.
-- Excluded folders UI is not implemented yet.
-- Allowed formats UI is not implemented yet.
-- Backup/reset DB workflows are not implemented yet.
-- Theme value is stored but not applied yet.
-
-## Acceptance Criteria
-
-- Settings persist across restart.
-- Privacy guarantees are visible in onboarding/settings.
-- Reset database requires explicit confirmation.
+  Scenario: Known settings and privacy gaps
+    Then matching weights UI is not complete yet
+    And excluded folders UI is not complete yet
+    And allowed formats UI is not complete yet
+    And backup and reset workflows are not complete yet
+    And theme application is not complete yet

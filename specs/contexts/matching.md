@@ -1,58 +1,64 @@
-# Matching Context Spec
+# language: en
 
-## Purpose
+Feature: Matching
+  Matching owns compatibility scoring between tracks and explainable recommendations.
 
-Matching owns compatibility scoring between tracks and explainable recommendations.
+  Scenario: Calculate a weighted compatibility score
+    Given two candidate tracks
+    When GrooveMap calculates their match
+    Then the result includes total score from 0 to 100
+    And the result includes confidence
+    And the result includes BPM, key, energy, mood, function, groove, spectral, and history component scores
+    And the result includes a short musical explanation
+    And the result includes an indicator of safe, interesting, risky, or wildcard
 
-## Current Implementation
+  Scenario: Score BPM compatibility
+    Given two tracks have BPM values
+    When their BPM difference is less than or equal to 1
+    Then BPM score is 100
+    When their BPM difference is less than or equal to 2
+    Then BPM score is 90
+    When their BPM difference is less than or equal to 4
+    Then BPM score is 75
+    When their BPM difference is less than or equal to 6
+    Then BPM score is 50
+    When their BPM difference is less than or equal to 8
+    Then BPM score is 25
+    When their BPM difference is greater than 8
+    Then BPM score is 10
 
-- Rust `calculate_match(track_a, track_b)` returns total score, confidence, sub-scores, indicator, and explanation.
-- BPM scoring follows techno thresholds.
-- Camelot same, adjacent, relative, unknown, and incompatible scoring exists.
-- Energy, mood, function, groove, and preference heuristics exist.
-- `find_matches_for_track` returns top candidates.
+  Scenario: Score Camelot compatibility
+    Given two tracks have Camelot keys
+    When their Camelot key is the same
+    Then key score is 100
+    When their Camelot key is adjacent with the same letter
+    Then key score is 90
+    When their Camelot number is the same and letter differs
+    Then key score is 85
+    When either key is unknown
+    Then key score is 50
+    When keys are incompatible
+    Then key score is 25
 
-## Default Weights
+  Scenario: Apply default matching weights
+    Then BPM weight is 25 percent
+    And key weight is 15 percent
+    And energy weight is 20 percent
+    And mood weight is 10 percent
+    And function weight is 10 percent
+    And groove weight is 10 percent
+    And spectral weight is 5 percent
+    And history or preference weight is 5 percent
 
-- BPM: 25%.
-- Key: 15%.
-- Energy: 20%.
-- Mood: 10%.
-- Function: 10%.
-- Groove: 10%.
-- Spectral: 5%.
-- History/preference: 5%.
+  Scenario: Exclude discarded recommendations
+    Given a candidate track is marked discarded
+    When GrooveMap finds matches
+    Then the discarded candidate is excluded
 
-## Required Rules
-
-- BPM diff <= 1: 100.
-- BPM diff <= 2: 90.
-- BPM diff <= 4: 75.
-- BPM diff <= 6: 50.
-- BPM diff <= 8: 25.
-- BPM diff > 8: 10.
-- Same Camelot: 100.
-- Adjacent Camelot: 90.
-- Relative compatible: 85.
-- Unknown key: 50.
-- Incompatible key: 25.
-- Discarded tracks must be excluded from recommendations.
-- Matching weights must be adjustable in Settings.
-- Explanations must mention strongest positive reason and main risk when present.
-
-## Gap To Proposal
-
-- Context-aware matching is not implemented yet.
-- Settings-driven weights are not wired yet.
-- Mood-neighbor table is incomplete.
-- Groove special cases are minimal.
-- Spectral score is placeholder.
-- History score does not use transition feedback yet.
-- Match results are not cached in `match_scores` yet.
-- UI cannot mark transitions good/bad yet.
-
-## Acceptance Criteria
-
-- Top 10 matches exclude discarded tracks.
-- Score and confidence are explainable from component scores.
-- User can adjust weights and see changed recommendations.
+  Scenario: Known matching gaps
+    Then context-aware matching is not complete yet
+    And settings-driven weights are not complete yet
+    And full mood-neighbor rules are not complete yet
+    And spectral scoring is not complete yet
+    And transition feedback history is not complete yet
+    And match score caching is not complete yet

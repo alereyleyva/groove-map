@@ -1,41 +1,49 @@
-# Sets Context Spec
+# language: en
 
-## Purpose
+Feature: Sets
+  Sets owns set lifecycle, ordered tracks, transition notes, compatibility warnings, usage history, and exports.
 
-Sets owns set lifecycle, ordered tracks, transition notes, compatibility warnings, usage history, and exports.
+  Scenario: Create a set
+    Given the user is preparing a session
+    When the user creates a set with name, context, target duration, energy arc, BPM range, and notes
+    Then the set is persisted locally
 
-## Current Implementation
+  Scenario: Add and remove tracks
+    Given a set exists
+    And a track exists in the library
+    When the user adds the track to the set
+    Then the track appears at the next set position
+    When the user removes the track from the set
+    Then the track is removed without deleting the original audio file
+    And remaining positions are normalized
 
-- User can create sets.
-- User can add selected track to first set from detail panel.
-- User can remove tracks from a set.
-- Set export commands exist for CSV, JSON, and M3U.
-- UI copies export content to clipboard.
+  Scenario: Reorder and lock set tracks
+    Given a set contains multiple tracks
+    When the user reorders tracks by drag and drop
+    Then the new order is persisted
+    When a track is locked
+    Then assisted operations do not move the locked track
 
-## Required Behavior
+  Scenario: Display set progression
+    Given a set contains analyzed tracks
+    Then GrooveMap displays accumulated duration
+    And GrooveMap displays BPM progression
+    And GrooveMap displays energy progression
+    And GrooveMap displays key progression
+    And GrooveMap displays warnings for incompatible adjacent transitions
 
-- A set is an ordered list of tracks with metadata: name, description, date, target duration, context, energy arc, BPM range, notes.
-- Tracks can be added, removed, reordered via drag and drop, and locked.
-- UI displays accumulated duration, BPM progression, energy progression, key progression, warnings, and suggested transitions.
-- Transition notes and transition scores are editable.
-- Sets can be duplicated.
-- Exports: CSV, JSON, M3U, and text tracklist.
-- Play history should track usage in sets.
+  Scenario: Export a set
+    Given a set contains ordered tracks
+    When the user exports CSV, JSON, M3U, or text tracklist
+    Then the export preserves final set order
+    And the export includes enough track metadata for DJ use
 
-## Gap To Proposal
-
-- No drag-and-drop reorder UI yet.
-- Backend reorder exists but UI does not expose it.
-- No locked-track UI yet.
-- No transition notes UI yet.
-- No compatibility warnings in sets yet.
-- No BPM/energy/key progression chart yet.
-- No duplicate set action yet.
-- Text tracklist export is not implemented yet.
-- Play history is modeled but not used yet.
-
-## Acceptance Criteria
-
-- User can reorder tracks visually and persist order.
-- Export files preserve final order and file paths.
-- Warnings identify BPM/key/energy jumps between adjacent tracks.
+  Scenario: Known sets gaps
+    Then drag-and-drop reorder UI is not complete yet
+    And locked-track UI is not complete yet
+    And transition notes UI is not complete yet
+    And compatibility warnings are not complete yet
+    And BPM, energy, and key progression charts are not complete yet
+    And duplicate set action is not complete yet
+    And text tracklist export is not complete yet
+    And play history usage is not complete yet

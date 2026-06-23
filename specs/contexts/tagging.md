@@ -1,39 +1,38 @@
-# Tagging Context Spec
+# language: en
 
-## Purpose
+Feature: Tagging
+  Tagging owns structured tags, free tags, notes, ratings, personal status, and manual correction of analysis values.
 
-Tagging owns structured tags, free tags, notes, ratings, personal status, and manual correction of analysis values.
+  Scenario: Add structured tags
+    Given a track exists
+    When the user adds a structured field and value tag
+    Then the tag is stored locally for that track
+    And the tag remains separate from free tags
 
-## Current Implementation
+  Scenario: Save notes and ratings
+    Given a track exists
+    When the user saves a personal note or rating
+    Then the note or rating is persisted locally
 
-- Track detail can add structured field/value tags.
-- Track notes can be saved.
-- Manual BPM and Camelot override can be saved through `analyze_track`.
-- Ratings are supported by backend command and data model.
-- Free tags are supported by backend command and data model.
+  Scenario: Override automatic analysis manually
+    Given a track has automatic or missing analysis values
+    When the user manually corrects BPM, key, Camelot, or energy
+    Then the manual value takes precedence in UI and matching
+    And the source field records manual priority
 
-## Required Structured Fields
+  Scenario: Controlled structured tag vocabularies
+    Then Mood supports dark, hypnotic, driving, raw, industrial, mental, deep, trippy, emotional, cold, warm, aggressive, and elegant
+    And Energy supports warmup, low, medium, high, peak, and afterhours
+    And Function supports opener, builder, roller, tool, transition, peak-time, reset, closer, bridge, and weapon
+    And Style supports hypnotic techno, raw techno, dub techno, industrial techno, hardgroove, tribal techno, minimal techno, acid techno, detroit, warehouse, and ambient techno
+    And Groove supports straight, swing, rolling, broken, tribal, loopy, stomping, and syncopated
+    And Vocal presence supports none, short vocal, spoken, chant, and heavy vocal
+    And Mixability supports easy, medium, risky, and difficult
+    And Personal status supports new, reviewed, tested, played live, favorite, discarded, and needs cueing
 
-- Mood: `dark`, `hypnotic`, `driving`, `raw`, `industrial`, `mental`, `deep`, `trippy`, `emotional`, `cold`, `warm`, `aggressive`, `elegant`.
-- Energy: `warmup`, `low`, `medium`, `high`, `peak`, `afterhours`.
-- Function: `opener`, `builder`, `roller`, `tool`, `transition`, `peak-time`, `reset`, `closer`, `bridge`, `weapon`.
-- Style: `hypnotic techno`, `raw techno`, `dub techno`, `industrial techno`, `hardgroove`, `tribal techno`, `minimal techno`, `acid techno`, `detroit`, `warehouse`, `ambient techno`.
-- Groove: `straight`, `swing`, `rolling`, `broken`, `tribal`, `loopy`, `stomping`, `syncopated`.
-- Vocal presence: `none`, `short vocal`, `spoken`, `chant`, `heavy vocal`.
-- Mixability: `easy`, `medium`, `risky`, `difficult`.
-- Personal status: `new`, `reviewed`, `tested`, `played live`, `favorite`, `discarded`, `needs cueing`.
-
-## Gap To Proposal
-
-- UI does not constrain values per field yet.
-- No free tag editor in UI yet.
-- No rating editor in UI yet.
-- No batch tag editing yet.
-- No manual key/mode/energy editor beyond BPM and Camelot.
-- No validation schema for tag forms yet.
-
-## Acceptance Criteria
-
-- User can edit every structured field from controlled vocabularies.
-- Manual BPM, key, Camelot, and energy override automatic analysis in matching.
-- Free tags remain separate from structured tags.
+  Scenario: Known tagging gaps
+    Then controlled-value tag UI is not complete yet
+    And free tag editor UI is not complete yet
+    And rating editor UI is not complete yet
+    And batch tag editing is not complete yet
+    And manual key, mode, and energy editor coverage is not complete yet
