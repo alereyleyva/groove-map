@@ -16,6 +16,7 @@ export const api = {
   selectMusicFolder: () => invoke<string | null>("select_music_folder"),
   addSource: (path: string, recursive: boolean) =>
     invoke<Source>("add_source", { request: { path, recursive } }),
+  listSources: () => invoke<Source[]>("list_sources"),
   scanSource: (sourceId: number) => invoke<ScanResult>("scan_source", { sourceId }),
   listTracks: (filters: TrackFilters) => invoke<TrackSummary>("list_tracks", { filters }),
   getTrack: (trackId: number) => invoke<Track>("get_track", { trackId }),

@@ -69,6 +69,22 @@ pub fn get_source(conn: &Connection, id: i64) -> rusqlite::Result<Source> {
     )
 }
 
+pub fn list_sources(conn: &Connection) -> rusqlite::Result<Vec<Source>> {
+    let mut stmt = conn.prepare(
+        "SELECT id, path, name, recursive, created_at, updated_at, last_scan_at FROM sources ORDER BY updated_at DESC, name",
+    )?;
+    let sources = stmt.query_map([], |row| Ok(Source {
+        id: row.get(0)?,
+        path: row.get(1)?,
+        name: row.get(2)?,
+        recursive: row.get(3)?,
+        created_at: row.get(4)?,
+        updated_at: row.get(5)?,
+        last_scan_at: row.get(6)?,
+    }))?.collect();
+    sources
+}
+
 pub fn scan_source(conn: &Connection, source_id: i64) -> rusqlite::Result<ScanResult> {
     let source = get_source(conn, source_id)?;
     let candidates = scan_audio_files(Path::new(&source.path), source.recursive);
@@ -115,6 +131,7 @@ fn import_candidate(conn: &Connection, source_id: i64, path: &Path, extension: &
 pub fn list_tracks(conn: &Connection, filters: TrackFilters) -> rusqlite::Result<TrackSummary> {
     let limit = filters.limit.unwrap_or(500).clamp(1, 1000);
     let offset = filters.offset.unwrap_or(0).max(0);
+    let source_id = filters.source_id.unwrap_or(0);
     let search = filters.search.unwrap_or_default();
     let search_pattern = format!("%{}%", search);
     let bpm_min = filters.bpm_min.unwrap_or(0.0);
@@ -133,35 +150,37 @@ pub fn list_tracks(conn: &Connection, filters: TrackFilters) -> rusqlite::Result
         "SELECT COUNT(*) FROM tracks t
          LEFT JOIN track_analysis a ON a.track_id = t.id
          WHERE t.deleted_at IS NULL
-           AND (?1 = '' OR t.title LIKE ?2 OR t.artist LIKE ?2 OR t.file_name LIKE ?2)
-           AND (a.bpm IS NULL OR a.bpm BETWEEN ?3 AND ?4)
-           AND (?5 = '' OR a.camelot LIKE ?6 OR a.musical_key LIKE ?6)
-           AND (a.energy_score IS NULL OR a.energy_score BETWEEN ?7 AND ?8)
-           AND (?9 = '' OR EXISTS (SELECT 1 FROM track_tags tag WHERE tag.track_id = t.id AND tag.field = 'mood' AND tag.value = ?9))
-           AND (?10 = '' OR EXISTS (SELECT 1 FROM track_tags tag WHERE tag.track_id = t.id AND tag.field = 'function' AND tag.value = ?10))
-           AND (?11 = '' OR EXISTS (SELECT 1 FROM track_tags tag WHERE tag.track_id = t.id AND tag.field = 'style' AND tag.value = ?11))
-           AND (?12 = '' OR EXISTS (SELECT 1 FROM track_tags tag WHERE tag.track_id = t.id AND tag.field = 'groove' AND tag.value = ?12))
-           AND (?13 = '' OR a.status = ?13)",
+           AND (?1 = 0 OR t.source_id = ?1)
+           AND (?2 = '' OR t.title LIKE ?3 OR t.artist LIKE ?3 OR t.file_name LIKE ?3)
+           AND (a.bpm IS NULL OR a.bpm BETWEEN ?4 AND ?5)
+           AND (?6 = '' OR a.camelot LIKE ?7 OR a.musical_key LIKE ?7)
+           AND (a.energy_score IS NULL OR a.energy_score BETWEEN ?8 AND ?9)
+           AND (?10 = '' OR EXISTS (SELECT 1 FROM track_tags tag WHERE tag.track_id = t.id AND tag.field = 'mood' AND tag.value = ?10))
+           AND (?11 = '' OR EXISTS (SELECT 1 FROM track_tags tag WHERE tag.track_id = t.id AND tag.field = 'function' AND tag.value = ?11))
+           AND (?12 = '' OR EXISTS (SELECT 1 FROM track_tags tag WHERE tag.track_id = t.id AND tag.field = 'style' AND tag.value = ?12))
+           AND (?13 = '' OR EXISTS (SELECT 1 FROM track_tags tag WHERE tag.track_id = t.id AND tag.field = 'groove' AND tag.value = ?13))
+           AND (?14 = '' OR a.status = ?14)",
     )?;
-    let total = stmt.query_row(params![search, search_pattern, bpm_min, bpm_max, key, key_pattern, energy_min, energy_max, mood, function_tag, style, groove, status], |row| row.get(0))?;
+    let total = stmt.query_row(params![source_id, search, search_pattern, bpm_min, bpm_max, key, key_pattern, energy_min, energy_max, mood, function_tag, style, groove, status], |row| row.get(0))?;
 
     let mut stmt = conn.prepare(
         "SELECT t.id FROM tracks t
          LEFT JOIN track_analysis a ON a.track_id = t.id
          WHERE t.deleted_at IS NULL
-           AND (?1 = '' OR t.title LIKE ?2 OR t.artist LIKE ?2 OR t.file_name LIKE ?2)
-           AND (a.bpm IS NULL OR a.bpm BETWEEN ?3 AND ?4)
-           AND (?5 = '' OR a.camelot LIKE ?6 OR a.musical_key LIKE ?6)
-           AND (a.energy_score IS NULL OR a.energy_score BETWEEN ?7 AND ?8)
-           AND (?9 = '' OR EXISTS (SELECT 1 FROM track_tags tag WHERE tag.track_id = t.id AND tag.field = 'mood' AND tag.value = ?9))
-           AND (?10 = '' OR EXISTS (SELECT 1 FROM track_tags tag WHERE tag.track_id = t.id AND tag.field = 'function' AND tag.value = ?10))
-           AND (?11 = '' OR EXISTS (SELECT 1 FROM track_tags tag WHERE tag.track_id = t.id AND tag.field = 'style' AND tag.value = ?11))
-           AND (?12 = '' OR EXISTS (SELECT 1 FROM track_tags tag WHERE tag.track_id = t.id AND tag.field = 'groove' AND tag.value = ?12))
-           AND (?13 = '' OR a.status = ?13)
-         ORDER BY COALESCE(t.artist, ''), COALESCE(t.title, t.file_name)
-         LIMIT ?14 OFFSET ?15",
+           AND (?1 = 0 OR t.source_id = ?1)
+           AND (?2 = '' OR t.title LIKE ?3 OR t.artist LIKE ?3 OR t.file_name LIKE ?3)
+           AND (a.bpm IS NULL OR a.bpm BETWEEN ?4 AND ?5)
+           AND (?6 = '' OR a.camelot LIKE ?7 OR a.musical_key LIKE ?7)
+           AND (a.energy_score IS NULL OR a.energy_score BETWEEN ?8 AND ?9)
+           AND (?10 = '' OR EXISTS (SELECT 1 FROM track_tags tag WHERE tag.track_id = t.id AND tag.field = 'mood' AND tag.value = ?10))
+           AND (?11 = '' OR EXISTS (SELECT 1 FROM track_tags tag WHERE tag.track_id = t.id AND tag.field = 'function' AND tag.value = ?11))
+           AND (?12 = '' OR EXISTS (SELECT 1 FROM track_tags tag WHERE tag.track_id = t.id AND tag.field = 'style' AND tag.value = ?12))
+           AND (?13 = '' OR EXISTS (SELECT 1 FROM track_tags tag WHERE tag.track_id = t.id AND tag.field = 'groove' AND tag.value = ?13))
+           AND (?14 = '' OR a.status = ?14)
+          ORDER BY COALESCE(t.artist, ''), COALESCE(t.title, t.file_name)
+          LIMIT ?15 OFFSET ?16",
     )?;
-    let ids = stmt.query_map(params![search, search_pattern, bpm_min, bpm_max, key, key_pattern, energy_min, energy_max, mood, function_tag, style, groove, status, limit, offset], |row| row.get::<_, i64>(0))?
+    let ids = stmt.query_map(params![source_id, search, search_pattern, bpm_min, bpm_max, key, key_pattern, energy_min, energy_max, mood, function_tag, style, groove, status, limit, offset], |row| row.get::<_, i64>(0))?
         .collect::<Result<Vec<_>, _>>()?;
     let tracks = ids.into_iter().filter_map(|id| get_track(conn, id).ok()).collect();
     Ok(TrackSummary { tracks, total })
@@ -286,6 +305,21 @@ mod tests {
     }
 
     #[test]
+    fn lists_multiple_sources() {
+        let conn = Connection::open_in_memory().unwrap();
+        migrate(&conn).unwrap();
+
+        let first = add_source(&conn, AddSourceRequest { path: "/music/warehouse".to_string(), recursive: true }).unwrap();
+        let second = add_source(&conn, AddSourceRequest { path: "/music/promos".to_string(), recursive: false }).unwrap();
+
+        let sources = list_sources(&conn).unwrap();
+
+        assert_eq!(sources.len(), 2);
+        assert!(sources.iter().any(|source| source.id == first.id && source.name == "warehouse" && source.recursive));
+        assert!(sources.iter().any(|source| source.id == second.id && source.name == "promos" && !source.recursive));
+    }
+
+    #[test]
     fn filters_tracks_by_key_energy_and_structured_tags() {
         let conn = Connection::open_in_memory().unwrap();
         migrate(&conn).unwrap();
@@ -309,5 +343,26 @@ mod tests {
 
         assert_eq!(result.total, 1);
         assert_eq!(result.tracks[0].id, dark_id);
+    }
+
+    #[test]
+    fn filters_tracks_by_source() {
+        let conn = Connection::open_in_memory().unwrap();
+        migrate(&conn).unwrap();
+        let first_source = add_source(&conn, AddSourceRequest { path: "/music/a".to_string(), recursive: true }).unwrap();
+        let second_source = add_source(&conn, AddSourceRequest { path: "/music/b".to_string(), recursive: true }).unwrap();
+
+        conn.execute("INSERT INTO tracks(source_id, file_path, file_name, file_hash, file_size, title, created_at, updated_at) VALUES (?1, '/music/a/a.mp3', 'a.mp3', 'hash1', 10, 'A Track', 'now', 'now')", [first_source.id]).unwrap();
+        let first_track_id = conn.last_insert_rowid();
+        conn.execute("INSERT INTO track_analysis(track_id, analysis_version, status, created_at, updated_at) VALUES (?1, 1, 'pending', 'now', 'now')", [first_track_id]).unwrap();
+
+        conn.execute("INSERT INTO tracks(source_id, file_path, file_name, file_hash, file_size, title, created_at, updated_at) VALUES (?1, '/music/b/b.mp3', 'b.mp3', 'hash2', 10, 'B Track', 'now', 'now')", [second_source.id]).unwrap();
+        let second_track_id = conn.last_insert_rowid();
+        conn.execute("INSERT INTO track_analysis(track_id, analysis_version, status, created_at, updated_at) VALUES (?1, 1, 'pending', 'now', 'now')", [second_track_id]).unwrap();
+
+        let result = list_tracks(&conn, TrackFilters { source_id: Some(second_source.id), ..TrackFilters::default() }).unwrap();
+
+        assert_eq!(result.total, 1);
+        assert_eq!(result.tracks[0].id, second_track_id);
     }
 }

@@ -43,6 +43,7 @@ export type TrackSummary = {
 };
 
 export type TrackFilters = {
+  sourceId?: number;
   search?: string;
   bpmMin?: number;
   bpmMax?: number;

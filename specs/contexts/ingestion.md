@@ -26,14 +26,20 @@ Feature: Ingestion
     When the same source is scanned again
     Then existing file paths are not duplicated
 
+  Scenario: Manage multiple local sources
+    Given multiple local music folders have been imported
+    When the user opens the library
+    Then GrooveMap lists the imported sources with their names, paths, recursive flags, and last scan times
+    And the user can select a source to focus the library table on tracks from that source
+    And the user can rescan each source independently
+
   Scenario: Handle scan failures clearly
     When a file or folder cannot be read
     Then GrooveMap records a clear local error
     And scanning continues for other readable files where possible
 
   Scenario: Known ingestion gaps
-    Then the multi-source management UI is not complete yet
-    And source removal UI is not complete yet
+    Then source removal UI is not complete yet
     And duplicate resolution UI is not complete yet
     And incremental moved or deleted file detection is not complete yet
     And per-file scan error table UI is not complete yet

@@ -14,7 +14,7 @@ use tauri::Manager;
 pub fn run() {
     tauri::Builder::default()
         .setup(|app| {
-            let db_path = db::database_path(&app.handle())?;
+            let db_path = db::database_path(app.handle())?;
             let conn = db::connect(&db_path)?;
             db::migrate(&conn)?;
             app.manage(AppState { db_path: std::sync::Mutex::new(db_path) });
@@ -26,6 +26,7 @@ pub fn run() {
         .invoke_handler(tauri::generate_handler![
             commands::select_music_folder,
             commands::add_source,
+            commands::list_sources,
             commands::scan_source,
             commands::rescan_source,
             commands::list_tracks,

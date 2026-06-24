@@ -32,6 +32,11 @@ pub async fn add_source(state: tauri::State<'_, AppState>, request: AddSourceReq
 }
 
 #[tauri::command]
+pub async fn list_sources(state: tauri::State<'_, AppState>) -> Result<Vec<Source>, String> {
+    with_conn(state, |conn| Ok(db::list_sources(conn)?))
+}
+
+#[tauri::command]
 pub async fn scan_source(state: tauri::State<'_, AppState>, source_id: i64) -> Result<ScanResult, String> {
     with_conn(state, |conn| Ok(db::scan_source(conn, source_id)?))
 }
@@ -125,7 +130,7 @@ pub async fn generate_set_draft(state: tauri::State<'_, AppState>, request: Gene
 pub async fn export_set_csv(state: tauri::State<'_, AppState>, set_id: i64) -> Result<String, String> { with_conn(state, |conn| Ok(exports::export_set_csv(&sets::get_set(conn, set_id)?))) }
 
 #[tauri::command]
-pub async fn export_set_json(state: tauri::State<'_, AppState>, set_id: i64) -> Result<String, String> { with_conn(state, |conn| Ok(exports::export_set_json(&sets::get_set(conn, set_id)?)?)) }
+pub async fn export_set_json(state: tauri::State<'_, AppState>, set_id: i64) -> Result<String, String> { with_conn(state, |conn| exports::export_set_json(&sets::get_set(conn, set_id)?)) }
 
 #[tauri::command]
 pub async fn export_set_m3u(state: tauri::State<'_, AppState>, set_id: i64) -> Result<String, String> { with_conn(state, |conn| Ok(exports::export_set_m3u(&sets::get_set(conn, set_id)?))) }

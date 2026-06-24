@@ -82,6 +82,7 @@ pub struct ScanResult {
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct TrackFilters {
+    pub source_id: Option<i64>,
     pub search: Option<String>,
     pub bpm_min: Option<f64>,
     pub bpm_max: Option<f64>,
