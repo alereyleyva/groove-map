@@ -1,5 +1,5 @@
 import { useEffect, useState, useTransition } from "react";
-import { ChevronDown, ChevronLeft, ChevronRight, FolderPlus, MoreVertical, RefreshCw, RotateCcw, Search, SlidersHorizontal } from "lucide-react";
+import { ChevronDown, ChevronLeft, ChevronRight, FolderPlus, RefreshCw, RotateCcw, Search, SlidersHorizontal } from "lucide-react";
 import { Button, Input, Select } from "../../components/ui";
 import { formatDuration, formatNumber, tagValues } from "../../lib/format";
 import { api } from "../../lib/tauri";
@@ -100,71 +100,75 @@ export function LibraryView() {
   const pageEnd = Math.min((filters.offset ?? 0) + tracks.length, total);
 
   return (
-    <div className="flex h-full min-w-0 flex-col px-5 py-6">
-      <div className="mb-5 flex items-center justify-between gap-6">
-        <div className="relative max-w-[650px] flex-1">
-          <Search className="absolute left-4 top-1/2 size-5 -translate-y-1/2 text-zinc-500" />
-          <Input className="h-[60px] w-full rounded border-zinc-800 bg-[#111518] pl-12 text-base shadow-inner shadow-black/30 placeholder:text-zinc-500" placeholder="Search tracks, artists, labels, tags..." value={filters.search ?? ""} onChange={(event) => updateFilters({ ...filters, search: event.target.value || undefined, offset: 0 })} />
+    <div className="flex h-full min-w-0 flex-col">
+      <header className="border-b border-[#303437] px-5 py-5 lg:px-9 lg:py-7">
+        <div className="flex flex-col gap-3 xl:flex-row xl:items-center">
+          <div className="relative min-w-0 flex-1">
+            <Search className="absolute left-4 top-1/2 size-5 -translate-y-1/2 text-[#9ba1a6]" />
+            <Input
+              className="h-[60px] w-full rounded-md border-[#34383b] bg-[#111516] pl-14 text-lg shadow-[inset_0_1px_0_rgba(255,255,255,0.03)] placeholder:text-[#858b90]"
+              placeholder="Search tracks, artists, tags..."
+              value={filters.search ?? ""}
+              onChange={(event) => updateFilters({ ...filters, search: event.target.value || undefined, offset: 0 })}
+            />
+          </div>
+          <div className="flex shrink-0 flex-wrap gap-3">
+            <Button className="h-[60px] px-6 text-base" onClick={importFolder}><FolderPlus className="size-5" />Import Folder</Button>
+            <Button className="h-[60px] px-6 text-base" onClick={rescan} disabled={sources.length === 0}><RefreshCw className="size-5" />Rescan</Button>
+            <Button className="h-[60px] px-6 text-base" tone="primary" disabled title="Advanced automatic analysis is not implemented yet.">Analyze</Button>
+          </div>
         </div>
-        <div className="flex items-center gap-3">
-          <Button className="h-[60px] rounded border-zinc-800 bg-[#111518] px-6 text-sm normal-case tracking-normal text-zinc-200 hover:bg-zinc-900" onClick={importFolder}><FolderPlus className="mr-2 inline size-5" />Import Folder</Button>
-          <Button className="h-[60px] rounded border-zinc-800 bg-[#111518] px-6 text-sm normal-case tracking-normal text-zinc-200 hover:bg-zinc-900" onClick={rescan} disabled={sources.length === 0}><RefreshCw className="mr-2 inline size-5" />Rescan</Button>
-        </div>
-      </div>
 
-      <div className="mb-5 overflow-hidden rounded border border-zinc-800 bg-[#101417]">
-        <div className="grid grid-cols-7 divide-x divide-zinc-800 text-sm">
+        <div className="mt-7 flex flex-wrap items-center gap-4">
           <FilterRange label="BPM" min={filters.bpmMin} max={filters.bpmMax} onMinChange={(value) => updateFilters({ ...filters, bpmMin: value, offset: 0 })} onMaxChange={(value) => updateFilters({ ...filters, bpmMax: value, offset: 0 })} />
           <FilterText label="Key" value={filters.key ?? ""} placeholder="All" onChange={(value) => updateFilters({ ...filters, key: value || undefined, offset: 0 })} />
           <FilterSelect label="Energy" value={energyFilterValue(filters)} options={["All", "Low", "Medium", "High"]} onChange={(value) => updateFilters({ ...filters, ...energyFilter(value), offset: 0 })} />
-          <FilterSelect label="Mood" value={filters.mood ?? ""} options={["All", "dark", "hypnotic", "driving", "raw", "industrial", "deep", "warm"]} onChange={(value) => updateFilters({ ...filters, mood: value || undefined, offset: 0 })} />
-          <FilterSelect label="Function" value={filters.functionTag ?? ""} options={["All", "opener", "builder", "roller", "tool", "peak-time", "closer"]} onChange={(value) => updateFilters({ ...filters, functionTag: value || undefined, offset: 0 })} />
-          <FilterSelect label="Style" value={filters.style ?? ""} options={["All", "hypnotic techno", "raw techno", "dub techno", "industrial techno", "hardgroove", "tribal techno", "minimal techno"]} onChange={(value) => updateFilters({ ...filters, style: value || undefined, offset: 0 })} />
-          <button className="flex items-center justify-center gap-2 px-5 py-4 text-zinc-300" onClick={resetFilters}><RotateCcw className="size-4" />Reset</button>
+          <FilterSelect label="Tags" value={filters.mood ?? filters.functionTag ?? ""} options={["All", "hypnotic", "driving", "industrial", "deep", "rolling", "tool", "peak-time"]} onChange={(value) => updateTagFilter(value, filters, updateFilters)} />
+          <button className="inline-flex h-12 items-center gap-2 rounded-md border border-[#34383b] px-4 text-sm text-[#b9bec2] transition hover:bg-[#171b1d]" onClick={resetFilters}><RotateCcw className="size-4" />Reset</button>
         </div>
-      </div>
 
-      <div className="mb-4 flex items-center gap-2 overflow-x-auto pb-1">
-        <button className={`rounded-full border px-4 py-2 text-xs ${!filters.sourceId ? "border-cyan-400 bg-cyan-400/10 text-cyan-100" : "border-zinc-800 bg-zinc-950 text-zinc-400"}`} onClick={() => updateFilters({ ...filters, sourceId: undefined, offset: 0 })}>All folders</button>
-        {sources.map((source) => (
-          <button className={`max-w-64 truncate rounded-full border px-4 py-2 text-xs ${filters.sourceId === source.id ? "border-cyan-400 bg-cyan-400/10 text-cyan-100" : "border-zinc-800 bg-zinc-950 text-zinc-400 hover:text-zinc-100"}`} key={source.id} title={source.path} onClick={() => updateFilters({ ...filters, sourceId: source.id, offset: 0 })}>{source.name}</button>
-        ))}
-        <span className="ml-auto flex items-center gap-2 text-xs text-zinc-500"><SlidersHorizontal className="size-4" />{selectedSource ? selectedSource.path : "All imported music folders"}</span>
-      </div>
-
-      <div className="min-h-0 flex-1 overflow-hidden rounded border border-zinc-800 bg-[#101312]">
-        <div className="grid h-12 grid-cols-[44px_1.35fr_1.05fr_80px_85px_130px_130px_100px_120px_36px] items-center border-b border-zinc-800 px-3 text-xs font-semibold uppercase tracking-wide text-zinc-500">
-          <span className="size-5 rounded border border-zinc-700" />
-          <span>Title</span><span>Artist</span><span>BPM</span><span>Key</span><span>Energy</span><span>Mood</span><span>Function</span><span>Duration</span><span />
+        <div className="mt-5 flex items-center gap-2 overflow-x-auto pb-1">
+          <button className={`rounded-full border px-4 py-2 text-xs transition ${!filters.sourceId ? "border-[#78c7e8] bg-[#1c333d] text-[#d9eef7]" : "border-[#303437] bg-[#111516] text-[#9da2a6] hover:text-[#f0f2f2]"}`} onClick={() => updateFilters({ ...filters, sourceId: undefined, offset: 0 })}>All folders</button>
+          {sources.map((source) => (
+            <button className={`max-w-64 truncate rounded-full border px-4 py-2 text-xs transition ${filters.sourceId === source.id ? "border-[#78c7e8] bg-[#1c333d] text-[#d9eef7]" : "border-[#303437] bg-[#111516] text-[#9da2a6] hover:text-[#f0f2f2]"}`} key={source.id} title={source.path} onClick={() => updateFilters({ ...filters, sourceId: source.id, offset: 0 })}>{source.name}</button>
+          ))}
+          <span className="ml-auto hidden min-w-0 items-center gap-2 truncate text-xs text-[#858b90] lg:flex"><SlidersHorizontal className="size-4 shrink-0" />{selectedSource ? selectedSource.path : "All imported music folders"}</span>
         </div>
-        <div className="h-[calc(100%-48px)] overflow-auto">
+      </header>
+
+      <section className="min-h-0 flex-1 overflow-hidden bg-[#111415]">
+        <div className="grid h-[66px] grid-cols-[minmax(180px,1.4fr)_minmax(130px,1fr)_72px_78px_132px_minmax(180px,1.1fr)_86px] items-center border-b border-[#303437] px-8 text-sm font-medium text-[#b6bbc0]">
+          <span>Title</span><span>Artist</span><span>BPM</span><span>Key</span><span>Energy</span><span>Tags</span><span className="text-right">Duration</span>
+        </div>
+        <div className="h-[calc(100%-66px)] overflow-auto">
           {tracks.map((track) => {
             const active = selectedTrack?.id === track.id;
+            const tags = visibleTags(track);
             return (
-              <button className={`grid w-full grid-cols-[44px_1.35fr_1.05fr_80px_85px_130px_130px_100px_120px_36px] items-center border-b border-zinc-800/80 px-3 py-3 text-left text-sm transition ${active ? "bg-cyan-400/15 text-zinc-100" : "text-zinc-300 hover:bg-zinc-900/80"}`} key={track.id} onClick={() => selectTrack(track)}>
-                <span className={`grid size-5 place-items-center rounded border ${active ? "border-cyan-400 bg-cyan-400 text-[#071014]" : "border-zinc-700"}`}>{active ? "✓" : ""}</span>
-                <span className="truncate font-medium">{track.title ?? track.fileName}</span>
-                <span className="truncate text-zinc-300">{track.artist ?? "Unknown"}</span>
+              <button className={`grid min-h-[66px] w-full grid-cols-[minmax(180px,1.4fr)_minmax(130px,1fr)_72px_78px_132px_minmax(180px,1.1fr)_86px] items-center border-b border-[#262b2e] px-8 text-left text-base transition ${active ? "bg-[linear-gradient(90deg,rgba(120,199,232,0.18)_0%,rgba(120,199,232,0.09)_100%)] text-[#f0f2f2] shadow-[inset_4px_0_0_#78c7e8]" : "text-[#ced2d5] hover:bg-[#171b1d]"}`} key={track.id} onClick={() => selectTrack(track)}>
+                <span className="min-w-0 truncate font-medium">{track.title ?? track.fileName}</span>
+                <span className="min-w-0 truncate">{track.artist ?? "Unknown"}</span>
                 <span>{formatNumber(track.bpm, 0)}</span>
-                <span className="font-medium text-sky-400">{track.camelot ?? track.musicalKey ?? "--"}</span>
+                <span>{track.camelot ?? track.musicalKey ?? "--"}</span>
                 <EnergyBars value={track.energyScore} />
-                <span className="truncate">{tagValues(track.tags, "mood")[0] ?? "--"}</span>
-                <span className="truncate text-cyan-300">{tagValues(track.tags, "function")[0] ?? "--"}</span>
-                <span>{formatDuration(track.durationSeconds)}</span>
-                <MoreVertical className="size-5 text-zinc-500" />
+                <span className="flex min-w-0 flex-wrap gap-2 overflow-hidden py-2">
+                  {tags.map((tag) => <span className="rounded bg-[#303639] px-2.5 py-1 text-sm leading-none text-[#d9dddf]" key={tag}>{tag}</span>)}
+                  {tags.length === 0 && <span className="text-[#858b90]">--</span>}
+                </span>
+                <span className="text-right">{formatDuration(track.durationSeconds)}</span>
               </button>
             );
           })}
-          {tracks.length === 0 && <div className="p-12 text-center text-sm text-zinc-500">Import a local music folder to build the library.</div>}
+          {tracks.length === 0 && <div className="p-12 text-center text-sm text-[#858b90]">Import a local music folder to build the library.</div>}
         </div>
-      </div>
+      </section>
 
-      <div className="mt-3 flex items-center justify-between text-sm text-zinc-500">
+      <div className="flex h-12 shrink-0 items-center justify-between border-t border-[#303437] bg-[#101314] px-8 text-sm text-[#858b90]">
         <span>{pageStart}-{pageEnd} of {total} tracks</span>
         <div className="flex items-center gap-4">
-          <span className={isPending ? "text-cyan-300" : ""}>{isPending ? "Loading" : "Ready"}</span>
-          <button className="rounded border border-zinc-800 p-1 text-zinc-300 disabled:opacity-40" onClick={previousPage} disabled={(filters.offset ?? 0) === 0}><ChevronLeft className="size-4" /></button>
-          <button className="rounded border border-zinc-800 p-1 text-zinc-300 disabled:opacity-40" onClick={nextPage} disabled={(filters.offset ?? 0) + tracks.length >= total}><ChevronRight className="size-4" /></button>
+          <span className={isPending ? "text-[#78c7e8]" : ""}>{isPending ? "Loading" : "Ready"}</span>
+          <button className="rounded border border-[#34383b] p-1 text-[#c8cccf] disabled:opacity-40" onClick={previousPage} disabled={(filters.offset ?? 0) === 0}><ChevronLeft className="size-4" /></button>
+          <button className="rounded border border-[#34383b] p-1 text-[#c8cccf] disabled:opacity-40" onClick={nextPage} disabled={(filters.offset ?? 0) + tracks.length >= total}><ChevronRight className="size-4" /></button>
           <span>Rows</span>
           <Select className="h-8 w-20" value={filters.limit ?? 50} onChange={(event) => updateLimit(Number(event.target.value))}>
             <option value={25}>25</option>
@@ -179,15 +183,24 @@ export function LibraryView() {
 }
 
 function FilterRange({ label, min, max, onMinChange, onMaxChange }: { label: string; min?: number; max?: number; onMinChange: (value?: number) => void; onMaxChange: (value?: number) => void }) {
-  return <label className="px-5 py-3"><span className="mb-1 block text-xs text-zinc-500">{label}</span><span className="grid grid-cols-[1fr_auto_1fr] items-center gap-2"><input className="w-full bg-transparent text-sm text-zinc-200 outline-none placeholder:text-zinc-600" placeholder="Min" type="number" value={min ?? ""} onChange={(event) => onMinChange(event.target.value ? Number(event.target.value) : undefined)} /><span className="text-zinc-600">-</span><input className="w-full bg-transparent text-sm text-zinc-200 outline-none placeholder:text-zinc-600" placeholder="Max" type="number" value={max ?? ""} onChange={(event) => onMaxChange(event.target.value ? Number(event.target.value) : undefined)} /></span></label>;
+  return (
+    <label className="grid h-12 w-40 grid-cols-[auto_1fr] items-center gap-3 rounded-md border border-[#34383b] bg-[#111516] px-4 text-sm">
+      <span className="text-[#d3d7da]">{label}</span>
+      <span className="grid min-w-0 grid-cols-[1fr_auto_1fr] items-center gap-1">
+        <input className="min-w-0 bg-transparent text-right text-[#9da2a6] outline-none placeholder:text-[#747a80]" placeholder="Min" type="number" value={min ?? ""} onChange={(event) => onMinChange(event.target.value ? Number(event.target.value) : undefined)} />
+        <span className="text-[#5c6368]">-</span>
+        <input className="min-w-0 bg-transparent text-[#9da2a6] outline-none placeholder:text-[#747a80]" placeholder="Max" type="number" value={max ?? ""} onChange={(event) => onMaxChange(event.target.value ? Number(event.target.value) : undefined)} />
+      </span>
+    </label>
+  );
 }
 
 function FilterText({ label, value, placeholder, onChange }: { label: string; value: string; placeholder: string; onChange: (value: string) => void }) {
-  return <label className="px-5 py-3"><span className="mb-1 block text-xs text-zinc-500">{label}</span><input className="w-full bg-transparent text-sm text-zinc-200 outline-none placeholder:text-zinc-600" placeholder={placeholder} value={value} onChange={(event) => onChange(event.target.value)} /></label>;
+  return <label className="grid h-12 w-36 grid-cols-[auto_1fr] items-center gap-3 rounded-md border border-[#34383b] bg-[#111516] px-4 text-sm"><span className="text-[#d3d7da]">{label}</span><input className="min-w-0 bg-transparent text-[#9da2a6] outline-none placeholder:text-[#747a80]" placeholder={placeholder} value={value} onChange={(event) => onChange(event.target.value)} /></label>;
 }
 
 function FilterSelect({ label, value, options, onChange }: { label: string; value: string; options: string[]; onChange: (value: string) => void }) {
-  return <label className="relative px-5 py-3"><span className="mb-1 block text-xs text-zinc-500">{label}</span><select className="w-full appearance-none bg-transparent text-sm text-zinc-200 outline-none" value={value} onChange={(event) => onChange(event.target.value)}>{options.map((option) => <option className="bg-zinc-950" value={option === "All" ? "" : option} key={option}>{option}</option>)}</select><ChevronDown className="pointer-events-none absolute right-5 top-8 size-4 text-zinc-500" /></label>;
+  return <label className="relative grid h-12 w-36 grid-cols-[auto_1fr] items-center gap-3 rounded-md border border-[#34383b] bg-[#111516] px-4 text-sm"><span className="text-[#d3d7da]">{label}</span><select className="min-w-0 appearance-none bg-transparent pr-5 text-[#9da2a6] outline-none" value={value} onChange={(event) => onChange(event.target.value)}>{options.map((option) => <option className="bg-[#111516]" value={option === "All" ? "" : option} key={option}>{option}</option>)}</select><ChevronDown className="pointer-events-none absolute right-4 top-1/2 size-4 -translate-y-1/2 text-[#9da2a6]" /></label>;
 }
 
 function energyFilterValue(filters: TrackFilters) {
@@ -204,7 +217,21 @@ function energyFilter(value: string): Pick<TrackFilters, "energyMin" | "energyMa
   return { energyMin: undefined, energyMax: undefined };
 }
 
+function updateTagFilter(value: string, filters: TrackFilters, updateFilters: (next: TrackFilters) => void) {
+  const functionTags = new Set(["tool", "peak-time"]);
+  updateFilters({
+    ...filters,
+    mood: value && !functionTags.has(value) ? value : undefined,
+    functionTag: value && functionTags.has(value) ? value : undefined,
+    offset: 0,
+  });
+}
+
+function visibleTags(track: Track) {
+  return [...tagValues(track.tags, "mood"), ...tagValues(track.tags, "groove"), ...tagValues(track.tags, "function"), ...track.freeTags].slice(0, 3);
+}
+
 function EnergyBars({ value }: { value?: number | null }) {
-  const level = Math.max(1, Math.round((value ?? 0.65) * 9));
-  return <span className="flex gap-1">{Array.from({ length: 9 }).map((_, index) => <span className={`h-4 w-1.5 ${index < level ? "bg-cyan-300" : "bg-zinc-700"}`} key={index} />)}</span>;
+  const level = Math.max(1, Math.round((value ?? 0.65) * 10));
+  return <span className="flex gap-1">{Array.from({ length: 10 }).map((_, index) => <span className={`h-5 w-1 ${index < level ? "bg-[#d8f1fb]" : "bg-[#42484c]"}`} key={index} />)}</span>;
 }

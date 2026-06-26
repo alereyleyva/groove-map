@@ -6,11 +6,18 @@ export function cn(...inputs: Array<string | false | null | undefined>) {
   return twMerge(clsx(inputs));
 }
 
-export function Button({ className, ...props }: ButtonHTMLAttributes<HTMLButtonElement>) {
+type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
+  tone?: "primary" | "secondary" | "ghost";
+};
+
+export function Button({ className, tone = "secondary", ...props }: ButtonProps) {
   return (
     <button
       className={cn(
-        "rounded border border-cyan-400/30 bg-cyan-400/10 px-3 py-2 text-xs font-semibold uppercase tracking-wide text-cyan-100 transition hover:border-cyan-300 hover:bg-cyan-300/20 disabled:cursor-not-allowed disabled:opacity-40",
+        "inline-flex h-10 items-center justify-center gap-2 rounded-md border px-4 text-sm font-medium transition disabled:cursor-not-allowed disabled:opacity-40",
+        tone === "primary" && "border-[#6bbbe0]/70 bg-[#78c7e8] text-[#101416] shadow-[inset_0_1px_0_rgba(255,255,255,0.35)] hover:bg-[#8bd2ef]",
+        tone === "secondary" && "border-[#34383b] bg-[#15191b] text-[#d4d7d8] shadow-[inset_0_1px_0_rgba(255,255,255,0.04)] hover:border-[#464b4f] hover:bg-[#1b2022]",
+        tone === "ghost" && "border-transparent bg-transparent text-[#9da2a6] hover:bg-[#171b1d] hover:text-[#f0f2f2]",
         className,
       )}
       {...props}
@@ -22,7 +29,7 @@ export function Input({ className, ...props }: InputHTMLAttributes<HTMLInputElem
   return (
     <input
       className={cn(
-        "h-9 rounded border border-zinc-800 bg-zinc-950 px-3 text-sm text-zinc-100 outline-none placeholder:text-zinc-600 focus:border-cyan-500",
+        "h-10 rounded-md border border-[#34383b] bg-[#111416] px-3 text-sm text-[#e4e6e7] outline-none placeholder:text-[#747a80] focus:border-[#6bbbe0]",
         className,
       )}
       {...props}
@@ -34,7 +41,7 @@ export function Select({ className, ...props }: SelectHTMLAttributes<HTMLSelectE
   return (
     <select
       className={cn(
-        "h-9 rounded border border-zinc-800 bg-zinc-950 px-3 text-sm text-zinc-100 outline-none focus:border-cyan-500",
+        "h-10 rounded-md border border-[#34383b] bg-[#111416] px-3 text-sm text-[#e4e6e7] outline-none focus:border-[#6bbbe0]",
         className,
       )}
       {...props}
@@ -43,14 +50,14 @@ export function Select({ className, ...props }: SelectHTMLAttributes<HTMLSelectE
 }
 
 export function Panel({ className, children }: { className?: string; children: React.ReactNode }) {
-  return <section className={cn("border border-zinc-850 bg-zinc-950/80", className)}>{children}</section>;
+  return <section className={cn("rounded-md border border-[#303437] bg-[#111416]", className)}>{children}</section>;
 }
 
 export function Stat({ label, value }: { label: string; value: string | number }) {
   return (
-    <div className="rounded border border-zinc-800 bg-black/30 px-3 py-2">
-      <div className="text-[10px] uppercase tracking-wide text-zinc-500">{label}</div>
-      <div className="text-sm font-semibold text-zinc-100">{value}</div>
+    <div className="rounded-md border border-[#303437] bg-[#15191b] px-3 py-2">
+      <div className="text-[11px] text-[#8b9095]">{label}</div>
+      <div className="mt-1 text-sm font-semibold text-[#f0f2f2]">{value}</div>
     </div>
   );
 }

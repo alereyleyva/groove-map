@@ -15,44 +15,42 @@ function App() {
   const analysisProgress = imported > 0 ? Math.round((analyzed / imported) * 100) : 0;
 
   return (
-    <main className="flex h-screen overflow-hidden border border-zinc-800 bg-[#090b0d] text-zinc-200 shadow-2xl shadow-black">
-      <aside className="flex w-[244px] shrink-0 flex-col border-r border-zinc-800 bg-[linear-gradient(180deg,#111416_0%,#0a0d0f_100%)]">
-        <div className="flex h-28 items-center px-7">
-          <h1 className="text-2xl font-semibold tracking-tight text-zinc-100">GrooveMap</h1>
-        </div>
-        <nav className="flex-1 space-y-2">
-          <NavItem active={view === "library"} icon={<Library />} label="Library" onClick={() => setView("library")} />
-          <NavItem active={view === "sets"} icon={<ListMusic />} label="Sets" onClick={() => setView("sets")} />
-          <NavItem active={view === "builder"} icon={<WandSparkles />} label="Set Builder" onClick={() => setView("builder")} />
-          <NavItem active={view === "queue"} icon={<Activity />} label="Analysis Queue" onClick={() => setView("queue")} />
-          <NavItem active={view === "settings"} icon={<Settings />} label="Settings" onClick={() => setView("settings")} />
-        </nav>
-        <div className="mx-8 mb-12 border-t border-zinc-800 pt-5 text-xs uppercase tracking-wide text-zinc-500">
-          <Metric label="Tracks" value={queue?.imported ?? 0} />
-          <Metric label="Analyzed" value={queue?.done ?? 0} />
-          <Metric label="Pending" value={queue?.pending ?? 0} />
-          <Metric label="Missing" value={queue?.failed ?? 0} />
-        </div>
-      </aside>
-
-      <section className="flex min-w-0 flex-1 flex-col bg-[#0b0d0f]">
+    <main className="h-screen overflow-hidden bg-black p-3 text-[#d4d7d8] sm:p-5">
+      <div className="flex h-full flex-col overflow-hidden rounded-[10px] border border-[#303437] bg-[#0f1213] shadow-[0_24px_80px_rgba(0,0,0,0.65)]">
         <div className="flex min-h-0 flex-1">
-          <div className="min-w-0 flex-1">{renderView(view)}</div>
-          {view === "library" && <TrackDetailPanel />}
+          <aside className="hidden w-[276px] shrink-0 flex-col border-r border-[#303437] bg-[linear-gradient(180deg,#15191b_0%,#0c1011_100%)] md:flex">
+            <div className="flex h-[132px] items-center px-8">
+              <h1 className="text-xl font-semibold tracking-[-0.03em] text-[#f0f2f2]">GrooveMap</h1>
+            </div>
+            <nav className="flex-1 space-y-4 px-3">
+              <NavItem active={view === "library"} icon={<Library />} label="Library" onClick={() => setView("library")} />
+              <NavItem active={view === "sets"} icon={<ListMusic />} label="Sets" onClick={() => setView("sets")} />
+              <NavItem active={view === "builder"} icon={<WandSparkles />} label="Set Builder" onClick={() => setView("builder")} />
+              <NavItem active={view === "settings"} icon={<Settings />} label="Settings" onClick={() => setView("settings")} />
+            </nav>
+          </aside>
+
+          <section className="flex min-w-0 flex-1 flex-col bg-[#101314]">
+            <div className="flex min-h-0 flex-1">
+              <div className="min-w-0 flex-1">{renderView(view)}</div>
+              {view === "library" && <TrackDetailPanel />}
+            </div>
+          </section>
         </div>
-        <footer className="flex h-[72px] items-center justify-between border-t border-zinc-800 bg-[#0d0f11] px-7 text-sm text-zinc-400">
-          <div className="flex items-center gap-5">
-            <span className="flex items-center gap-3 font-medium text-zinc-100"><Activity className="size-4 text-cyan-300" />Analysis Queue</span>
-            <span>{queue?.pending ?? 0} pending</span>
-            <div className="h-1.5 w-96 rounded-full bg-zinc-800"><div className="h-full rounded-full bg-cyan-400" style={{ width: `${analysisProgress}%` }} /></div>
-            <span className="text-zinc-200">{analysisProgress}%</span>
+
+        <footer className="flex h-[72px] shrink-0 items-center justify-between gap-4 border-t border-[#303437] bg-[linear-gradient(180deg,#111516_0%,#0d1011_100%)] px-8 text-sm text-[#9da2a6]">
+          <div className="flex min-w-0 items-center gap-5">
+            <button className="shrink-0 transition hover:text-[#d9eef7]" onClick={() => setView("library")}>{imported.toLocaleString()} tracks</button>
+            <span className="text-[#5c6368]">•</span>
+            <button className="shrink-0 transition hover:text-[#d9eef7]" onClick={() => setView("queue")}>{queue?.pending ?? 0} pending</button>
+            <span className="text-[#5c6368]">•</span>
+            <button className="flex shrink-0 items-center gap-2 transition hover:text-[#d9eef7]" onClick={() => setView("queue")}><Activity className="size-4 text-[#78c7e8]" />Analyzing {queue?.analyzing ?? 0} files</button>
+            <div className="ml-2 hidden h-5 w-px bg-[#3a3f42] sm:block" />
+            <div className="hidden h-1.5 w-72 rounded-full bg-[#24292c] sm:block"><div className="h-full rounded-full bg-[#78c7e8]" style={{ width: `${analysisProgress}%` }} /></div>
           </div>
-          <div className="flex items-center gap-6">
-            <span className="text-xs text-zinc-500">{statusMessage}</span>
-            <button className="text-zinc-300 transition hover:text-cyan-200" onClick={() => setView("queue")}>View Queue</button>
-          </div>
+          <span className="min-w-0 truncate text-right text-xs text-[#858b90]">{statusMessage}</span>
         </footer>
-      </section>
+      </div>
     </main>
   );
 }
@@ -67,14 +65,10 @@ function renderView(view: ReturnType<typeof useAppStore.getState>["view"]) {
 
 function NavItem({ active, icon, label, onClick }: { active: boolean; icon: React.ReactElement; label: string; onClick: () => void }) {
   return (
-    <button className={`relative flex w-full items-center gap-4 px-8 py-4 text-left text-base transition ${active ? "bg-cyan-400/5 text-zinc-100 before:absolute before:left-0 before:top-0 before:h-full before:w-1 before:bg-cyan-400" : "text-zinc-400 hover:bg-zinc-900/70 hover:text-zinc-100"}`} onClick={onClick}>
+    <button className={`relative flex h-[72px] w-full items-center gap-5 rounded-md px-7 text-left text-lg transition ${active ? "bg-[#252a2d] text-[#f0f2f2] shadow-[inset_0_1px_0_rgba(255,255,255,0.04)] before:absolute before:left-0 before:top-1 before:h-[64px] before:w-1 before:rounded-full before:bg-[#78c7e8]" : "text-[#bec3c6] hover:bg-[#181d1f] hover:text-[#f0f2f2]"}`} onClick={onClick}>
       <span className="[&>svg]:size-6">{icon}</span>{label}
     </button>
   );
-}
-
-function Metric({ label, value }: { label: string; value: string | number }) {
-  return <div className="mb-4 flex justify-between"><span>{label}</span><span className="text-zinc-400">{value}</span></div>;
 }
 
 export default App;

@@ -15,9 +15,15 @@ export function AnalysisQueueView() {
   }, []);
 
   return (
-    <div className="space-y-4 p-4">
-      <div className="flex items-center justify-between"><h1 className="text-xl font-semibold text-zinc-100">Analysis Queue</h1><Button onClick={refresh}>Refresh</Button></div>
-      <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+    <div className="h-full overflow-auto p-5 lg:p-8">
+      <div className="mb-6 flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-semibold tracking-[-0.03em] text-[#f0f2f2]">Analysis Queue</h1>
+          <p className="mt-1 text-sm text-[#858b90]">Local scan and analysis state for imported files.</p>
+        </div>
+        <Button onClick={refresh}>Refresh</Button>
+      </div>
+      <div className="grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-6">
         <Stat label="Imported" value={queue?.imported ?? 0} />
         <Stat label="Pending" value={queue?.pending ?? 0} />
         <Stat label="Done" value={queue?.done ?? 0} />
@@ -25,7 +31,7 @@ export function AnalysisQueueView() {
         <Stat label="Analyzing" value={queue?.analyzing ?? 0} />
         <Stat label="Skipped" value={queue?.skipped ?? 0} />
       </div>
-      <div className="rounded border border-zinc-800 bg-zinc-950 p-6 text-sm text-zinc-400">
+      <div className="mt-5 rounded-md border border-[#303437] bg-[#111516] p-5 text-sm leading-6 text-[#b9bec2]">
         Background audio analysis is intentionally conservative in this MVP. Metadata and manual overrides are available now; deeper MIR metrics remain nullable until advanced analysis is added.
       </div>
     </div>

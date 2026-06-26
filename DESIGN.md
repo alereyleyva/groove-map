@@ -1,34 +1,44 @@
 ---
 version: alpha
-name: GrooveMap Studio
-description: Dense, dark, offline-first DJ library interface for local techno preparation.
+name: GrooveMap Desktop
+description: Dense, dark, local-only desktop workspace for techno DJ library preparation.
 colors:
-  primary: "#090B0D"
-  surface: "#0D1011"
-  surface-raised: "#111518"
-  surface-table: "#101312"
-  border: "#27272A"
-  border-muted: "#18181B"
-  text-primary: "#F4F4F5"
-  text-secondary: "#D4D4D8"
-  text-muted: "#8B8B94"
-  accent: "#22D3EE"
-  accent-strong: "#06B6D4"
-  selection: "#12343A"
+  primary: "#0F1213"
+  window: "#000000"
+  canvas: "#0F1213"
+  surface: "#101314"
+  surface-raised: "#111516"
+  surface-active: "#252A2D"
+  surface-chip: "#303639"
+  border: "#303437"
+  border-strong: "#34383B"
+  border-muted: "#262B2E"
+  text-primary: "#F0F2F2"
+  text-secondary: "#D4D7D8"
+  text-muted: "#858B90"
+  text-subtle: "#5C6368"
+  accent: "#78C7E8"
+  accent-muted: "#1C333D"
+  accent-contrast: "#101416"
   danger: "#F87171"
 typography:
   app-title:
     fontFamily: Inter, ui-sans-serif, system-ui, sans-serif
-    fontSize: 1.5rem
+    fontSize: 1.25rem
     fontWeight: 600
-    lineHeight: 2rem
-    letterSpacing: -0.02em
-  panel-title:
+    lineHeight: 1.75rem
+    letterSpacing: -0.03em
+  page-title:
     fontFamily: Inter, ui-sans-serif, system-ui, sans-serif
     fontSize: 1.5rem
     fontWeight: 600
     lineHeight: 2rem
-    letterSpacing: -0.025em
+    letterSpacing: -0.03em
+  nav-item:
+    fontFamily: Inter, ui-sans-serif, system-ui, sans-serif
+    fontSize: 1.125rem
+    fontWeight: 400
+    lineHeight: 1.75rem
   body:
     fontFamily: Inter, ui-sans-serif, system-ui, sans-serif
     fontSize: 0.875rem
@@ -36,19 +46,18 @@ typography:
     lineHeight: 1.25rem
   table-cell:
     fontFamily: Inter, ui-sans-serif, system-ui, sans-serif
-    fontSize: 0.875rem
+    fontSize: 1rem
     fontWeight: 400
-    lineHeight: 1.25rem
-  label-caps:
+    lineHeight: 1.5rem
+  metadata-label:
     fontFamily: Inter, ui-sans-serif, system-ui, sans-serif
-    fontSize: 0.75rem
-    fontWeight: 600
-    lineHeight: 1rem
-    letterSpacing: 0.08em
+    fontSize: 1rem
+    fontWeight: 400
+    lineHeight: 1.5rem
 rounded:
   sm: 4px
   md: 6px
-  lg: 8px
+  lg: 10px
   pill: 999px
 spacing:
   xs: 4px
@@ -61,138 +70,135 @@ components:
   app-shell:
     backgroundColor: "{colors.primary}"
     textColor: "{colors.text-secondary}"
+    rounded: "{rounded.lg}"
   sidebar:
     backgroundColor: "{colors.surface}"
     textColor: "{colors.text-secondary}"
-    width: 244px
+    width: 276px
   nav-item-active:
-    backgroundColor: "{colors.selection}"
+    backgroundColor: "{colors.surface-active}"
     textColor: "{colors.text-primary}"
   button-primary:
     backgroundColor: "{colors.accent}"
-    textColor: "{colors.primary}"
+    textColor: "{colors.accent-contrast}"
     rounded: "{rounded.md}"
     height: 60px
-    padding: 24px
   button-secondary:
     backgroundColor: "{colors.surface-raised}"
     textColor: "{colors.text-secondary}"
     rounded: "{rounded.md}"
     height: 60px
-    padding: 24px
   input-search:
     backgroundColor: "{colors.surface-raised}"
     textColor: "{colors.text-primary}"
     rounded: "{rounded.md}"
     height: 60px
+  filter-button:
+    backgroundColor: "{colors.surface-raised}"
+    textColor: "{colors.text-secondary}"
+    rounded: "{rounded.md}"
+    height: 48px
   table-row-active:
-    backgroundColor: "{colors.selection}"
+    backgroundColor: "{colors.accent-muted}"
     textColor: "{colors.text-primary}"
   table-container:
-    backgroundColor: "{colors.surface-table}"
+    backgroundColor: "{colors.surface}"
     textColor: "{colors.text-secondary}"
-  border-sample:
-    backgroundColor: "{colors.border}"
-    textColor: "{colors.text-primary}"
-  border-muted-sample:
-    backgroundColor: "{colors.border-muted}"
-    textColor: "{colors.text-primary}"
-  metadata-label:
-    backgroundColor: "{colors.primary}"
-    textColor: "{colors.text-muted}"
-  accent-action:
-    backgroundColor: "{colors.accent-strong}"
-    textColor: "{colors.primary}"
-  danger-action:
-    backgroundColor: "{colors.danger}"
-    textColor: "{colors.primary}"
   track-inspector:
     backgroundColor: "{colors.surface}"
     textColor: "{colors.text-secondary}"
-    width: 408px
+    width: 392px
 ---
 
 ## Overview
 
-GrooveMap is a technical desktop workspace for techno DJs preparing local music libraries. The design should feel like a compact studio tool: dark, dense, fast, and precise. It should not feel like a consumer streaming product, a marketing dashboard, or a decorative AI-generated concept.
+GrooveMap is a technical desktop workspace for techno DJs preparing local libraries. The visual direction is based on a single-window dark studio tool: persistent left navigation, a dominant center table, a fixed right track inspector, and a compact status footer.
 
-The interface prioritizes real library operations: importing local folders, filtering large track lists, inspecting metadata, tagging, matching, building sets, and monitoring local analysis state.
+The interface should feel precise, utilitarian, and local-first. It should not feel like a streaming app, dashboard template, marketing page, or decorative AI concept.
 
 ## Colors
 
-The palette is intentionally restrained: near-black surfaces, zinc-like borders, high-contrast text, and cyan for actions or analysis state.
+The palette uses almost-black surfaces, visible graphite borders, cool gray typography, and one muted blue-cyan accent.
 
-- **Primary (`#090B0D`)** is the application canvas.
-- **Surface (`#0D1011`)** and **surface-raised (`#111518`)** separate panels without bright contrast.
-- **Border (`#27272A`)** is used for structural panel edges, tables, chips, inputs, and controls.
-- **Text primary (`#F4F4F5`)** is reserved for selected titles, key values, and active navigation.
-- **Text muted (`#8B8B94`)** is used for metadata, empty states, secondary labels, and paths.
-- **Accent (`#22D3EE`)** marks primary actions, selected states, progress, and match/key emphasis.
+- **Window (`#000000`)** is the outside frame around the app shell.
+- **Canvas (`#0F1213`)** is the root application surface.
+- **Surface (`#101314`)** and **surface-raised (`#111516`)** separate workspace regions and controls.
+- **Surface-active (`#252A2D`)** is used for selected navigation.
+- **Surface-chip (`#303639`)** is used for tags and compact metadata chips.
+- **Border (`#303437`)** and **border-strong (`#34383B`)** define panels, controls, table rows, and inputs.
+- **Text primary (`#F0F2F2`)** is reserved for selected titles, active navigation, page titles, and important values.
+- **Text muted (`#858B90`)** is used for metadata labels, empty states, footer status, and helper text.
+- **Accent (`#78C7E8`)** marks the primary action, active row strip, progress, and focus states.
 - **Danger (`#F87171`)** is only for destructive or error states.
 
-Do not introduce additional decorative accent colors unless a new semantic state requires one.
+Do not introduce additional accent colors unless there is a new semantic state that needs one.
 
 ## Typography
 
-Use a system sans stack through Tailwind defaults. Typography should be compact and utilitarian.
+Use the system sans stack through Tailwind defaults. Typography is compact but slightly larger than a dashboard table so it reads like desktop software.
 
-- App and panel titles use `app-title` or `panel-title` scale.
-- Table rows use `table-cell` scale with truncation for long metadata.
-- Labels, headers, and section titles use `label-caps` with uppercase styling.
-- Avoid oversized hero type. GrooveMap is a working tool, not a landing page.
+- App title uses `app-title`.
+- Page titles use `page-title`.
+- Sidebar items use `nav-item`.
+- Library rows use `table-cell`.
+- Inspector labels use `metadata-label` with muted text.
+- Avoid hero type, marketing headings, oversized cards, and decorative display fonts.
 
 ## Layout
 
-The canonical desktop layout is a three-zone workspace.
+The canonical desktop layout is a four-zone workspace.
 
-- Left sidebar: persistent navigation and real local library counts.
-- Center library: search, functional filters, source chips, table, pagination.
-- Right inspector: selected track details, real tags, available analysis fields, match recommendations, and edit controls.
-- Bottom footer: real queue state and navigation to the queue view.
+- Left sidebar: persistent navigation, 276px wide, dark gradient surface, active item with a cyan left strip.
+- Center library: top search/action bar, compact filters, source chips, dense table, pagination controls.
+- Right inspector: selected track fields, tags, notes, set action, analysis override, tagging controls, and local match recommendations.
+- Bottom footer: real local queue status, imported track count, pending count, active analysis count, and progress.
 
-Spacing should remain compact. Rows should be dense enough for large collections while preserving click targets. Long filenames, paths, artists, and tags must truncate rather than expand the layout.
+The table is the visual center of the app. Rows should be dense, horizontally aligned, and separated by thin borders. Long titles, artists, paths, and tags must truncate or wrap only inside their assigned column.
 
-On narrower screens, the right inspector may be hidden, but the library table and import/source controls must remain usable.
+On narrower screens, the inspector and sidebar may collapse or hide first. The library table, import action, and source filters must remain usable.
 
 ## Elevation & Depth
 
-Use subtle panel separation instead of shadows. Depth comes from borders, slight surface changes, and selected-row tinting.
+Use borders, subtle gradients, and slight surface changes instead of shadows.
 
-- Prefer `border-zinc-800` or equivalent tokenized borders.
-- Avoid heavy glows, glassmorphism, decorative blur, and floating cards.
-- Selected rows and active nav items use a low-opacity cyan background, not a bright fill.
+- The outer shell has a single rounded frame and restrained shadow.
+- Sidebar and inspector use vertical gradients from raised black to near-black.
+- Active rows use a muted blue-cyan tint plus a left cyan strip.
+- Avoid glassmorphism, bright glows, floating cards, heavy blur, and decorative artwork blocks.
 
 ## Shapes
 
 Use small, consistent radii.
 
-- Inputs and primary controls use `rounded.md`.
-- Table containers and inspector cards use `rounded.lg`.
-- Folder/source chips use `rounded.pill`.
+- App shell uses `rounded.lg`.
+- Buttons, inputs, filters, panels, and textareas use `rounded.md`.
+- Tags and source filters may use `rounded.pill` or compact rounded rectangles.
 - Avoid fully rounded large panels except for chips and toggles.
 
 ## Components
 
-Every component must be wired to real application behavior or rendered as non-interactive text.
+Every component must be wired to real local behavior or rendered disabled/non-interactive.
 
 - Search updates the backend track query.
-- Filter controls update the backend `TrackFilters` values.
+- Filter controls update backend `TrackFilters` values.
 - Source chips reflect persisted SQLite `sources` and filter by `sourceId`.
 - Import Folder opens the local folder picker, persists a source, scans it, and focuses that source.
 - Rescan scans the selected source, or all sources when no source is selected.
+- Analyze may appear disabled until real automatic analysis behavior is implemented.
 - Track rows select a real track and load real local match recommendations.
-- Inspector values come from the selected track record or are omitted with an empty state.
-- Queue footer uses real queue counts and navigates to the queue view.
+- Inspector values come from the selected track record or show an empty state.
+- Notes, tags, rating, set assignment, and analysis overrides must persist through existing backend commands.
+- Footer queue values must use real local queue state and navigate to the queue view where applicable.
 
-## Do's and Don'ts
+## Do's And Don'ts
 
-Do keep the UI dark, compact, and optimized for DJ library workflow.
+Do keep the UI dark, compact, table-first, and optimized for DJ library workflow.
 
-Do keep controls visibly consistent with the screenshot-inspired layout while preserving real behavior.
+Do preserve the screenshot-inspired hierarchy: sidebar, top toolbar, compact filters, table, inspector, footer.
 
-Do use empty states when data is missing, for example `No tags yet. Add tags in Edit.`
+Do use empty states when data is missing, for example `No tags yet. Add tags below.`
 
-Do remove or disable a control if its backend/domain behavior does not exist yet.
+Do disable or remove controls when backend/domain behavior does not exist yet.
 
 Do keep folder/source management local-only and backed by SQLite.
 

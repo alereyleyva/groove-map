@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { X } from "lucide-react";
+import { ChevronDown, X } from "lucide-react";
 import { Button, Input, Select } from "../../components/ui";
 import { formatDuration, formatNumber } from "../../lib/format";
 import { api } from "../../lib/tauri";
@@ -51,7 +51,7 @@ export function TrackDetailPanel() {
   }, []);
 
   if (!selectedTrack) {
-    return <aside className="hidden w-[408px] shrink-0 border-l border-zinc-800 bg-[#0d1011] xl:block" />;
+    return <aside className="hidden w-[392px] shrink-0 border-l border-[#303437] bg-[#101314] xl:block" />;
   }
 
   const allTags = [...selectedTrack.tags.map((tag) => tag.value), ...selectedTrack.freeTags];
@@ -114,78 +114,78 @@ export function TrackDetailPanel() {
   }
 
   return (
-    <aside className="hidden w-[408px] shrink-0 overflow-auto border-l border-zinc-800 bg-[linear-gradient(180deg,#111415_0%,#090b0c_100%)] xl:block">
-      <div className="px-8 py-8">
-        <div className="mb-7 flex items-start justify-between">
-          <div>
-            <h2 className="text-2xl font-semibold tracking-tight text-zinc-100">{selectedTrack.title ?? selectedTrack.fileName}</h2>
-            <p className="mt-2 text-base text-zinc-500">{selectedTrack.artist ?? "Unknown artist"}</p>
-          </div>
-          <button className="text-zinc-500 transition hover:text-zinc-200" onClick={() => { setSelectedTrack(null); setMatches([]); }} aria-label="Close track detail"><X className="size-5" /></button>
+    <aside className="hidden w-[392px] shrink-0 overflow-auto border-l border-[#303437] bg-[linear-gradient(180deg,#15191b_0%,#0e1112_100%)] xl:block">
+      <div className="px-7 py-8">
+        <div className="mb-10 flex items-center justify-between">
+          <div className="flex items-center gap-3 text-xl font-medium text-[#d9dddf]">Track <ChevronDown className="size-5 text-[#9da2a6]" /></div>
+          <button className="text-[#858b90] transition hover:text-[#f0f2f2]" onClick={() => { setSelectedTrack(null); setMatches([]); }} aria-label="Close track detail"><X className="size-5" /></button>
         </div>
 
-        <div className="rounded border border-zinc-800 bg-zinc-950/50 p-4 text-sm text-zinc-500">
-          <div className="mb-2 text-xs uppercase tracking-wide text-zinc-600">File</div>
-          <div className="truncate text-zinc-300" title={selectedTrack.filePath}>{selectedTrack.fileName}</div>
-          <div className="mt-2 flex justify-between"><span>Duration</span><span>{formatDuration(selectedTrack.durationSeconds)}</span></div>
-        </div>
-
-        <div className="mt-7 grid grid-cols-2 gap-8 border-b border-zinc-800 pb-6">
-          <BigMetric label="BPM" value={formatNumber(selectedTrack.bpm, 0)} />
-          <BigMetric label="Key" value={selectedTrack.camelot ?? selectedTrack.musicalKey ?? "--"} />
-        </div>
+        <Field label="Title" value={selectedTrack.title ?? selectedTrack.fileName} />
+        <Field label="Artist" value={selectedTrack.artist ?? "Unknown"} />
+        <Field label="BPM" value={formatNumber(selectedTrack.bpm, 0)} />
+        <Field label="Key" value={selectedTrack.camelot ?? selectedTrack.musicalKey ?? "--"} />
+        <Field label="Duration" value={formatDuration(selectedTrack.durationSeconds)} />
 
         <Section title="Tags">
           <div className="flex flex-wrap gap-2">
-            {allTags.map((tag) => <span className="rounded-lg border border-zinc-800 bg-zinc-950/70 px-3 py-2 text-sm text-zinc-300" key={tag}>{tag}</span>)}
-            {allTags.length === 0 && <span className="text-sm text-zinc-500">No tags yet. Add tags in Edit.</span>}
+            {allTags.map((tag) => <span className="rounded bg-[#303639] px-3 py-2 text-sm leading-none text-[#d9dddf]" key={tag}>{tag}</span>)}
+            {allTags.length === 0 && <span className="text-sm text-[#858b90]">No tags yet. Add tags below.</span>}
           </div>
         </Section>
 
-        <Section title="Features">
-          {selectedTrack.energyScore === null || selectedTrack.energyScore === undefined ? <div className="text-sm text-zinc-500">No analyzed feature values yet.</div> : <Feature label="Energy" value={selectedTrack.energyScore} />}
+        <Section title="Notes">
+          <textarea className="min-h-36 w-full resize-none rounded-md border border-[#34383b] bg-[#111516] p-4 text-base leading-7 text-[#e4e6e7] outline-none placeholder:text-[#747a80] focus:border-[#78c7e8]" placeholder="Add preparation notes for this track..." value={note} onChange={(event) => setNote(event.target.value)} />
+          <Button className="mt-3 w-full" onClick={saveNote}>Save Note</Button>
         </Section>
 
-        <Section title="Top Matches">
-          <div className="space-y-4">
-            {visibleMatches.map((match) => <MatchCard key={match.trackBId} match={match} />)}
-            {matches.length === 0 && <div className="text-sm text-zinc-500">Select a track to calculate local matches.</div>}
-            {matches.length > 3 && <button className="mt-2 w-full text-center text-sm text-zinc-400 transition hover:text-cyan-200" onClick={() => setShowAllMatches((current) => !current)}>{showAllMatches ? "Show less" : "Show more"}</button>}
-          </div>
-        </Section>
+        <div className="border-b border-[#303437] py-7">
+          <Select className="mb-3 w-full" value={targetSetId} onChange={(event) => setTargetSetId(event.target.value)}>
+            {sets.map((set) => <option value={set.id} key={set.id}>{set.name}</option>)}
+          </Select>
+          <Button className="h-[60px] w-full text-base" disabled={sets.length === 0} onClick={addToSet}>Add to Set</Button>
+        </div>
 
-        <Section title="Edit">
+        <Section title="Analysis Override">
           <div className="grid grid-cols-2 gap-2">
             <Input placeholder="BPM" type="number" value={manualBpm} onChange={(event) => setManualBpm(event.target.value)} />
             <Input placeholder="Key" value={manualKey} onChange={(event) => setManualKey(event.target.value)} />
             <Input placeholder="Camelot" value={manualCamelot} onChange={(event) => setManualCamelot(event.target.value)} />
             <Input placeholder="Energy 0-1" type="number" min="0" max="1" step="0.01" value={manualEnergy} onChange={(event) => setManualEnergy(event.target.value)} />
           </div>
-          <Button className="mt-2 w-full" onClick={saveAnalysis}>Save analysis override</Button>
-          <div className="mt-3 flex gap-1">
-            {[1, 2, 3, 4, 5].map((rating) => <button className={`rounded border px-3 py-2 text-xs ${selectedTrack.rating === rating ? "border-cyan-400 bg-cyan-400/10 text-cyan-100" : "border-zinc-800 text-zinc-400"}`} key={rating} onClick={() => saveRating(rating)}>★</button>)}
-            <Button className="ml-auto" onClick={() => saveRating(null)}>Clear</Button>
+          <Button className="mt-3 w-full" tone="primary" onClick={saveAnalysis}>Save Analysis</Button>
+        </Section>
+
+        <Section title="Rating">
+          <div className="flex gap-2">
+            {[1, 2, 3, 4, 5].map((rating) => <button className={`h-10 flex-1 rounded-md border text-sm transition ${selectedTrack.rating === rating ? "border-[#78c7e8] bg-[#1c333d] text-[#d9eef7]" : "border-[#34383b] text-[#9da2a6] hover:bg-[#171b1d]"}`} key={rating} onClick={() => saveRating(rating)}>★</button>)}
+            <Button tone="ghost" onClick={() => saveRating(null)}>Clear</Button>
           </div>
-          <div className="mt-3 grid grid-cols-[1fr_1fr_auto] gap-2">
+        </Section>
+
+        <Section title="Tagging">
+          <div className="grid grid-cols-[1fr_1fr_auto] gap-2">
             <Select value={tagField} onChange={(event) => { const nextField = event.target.value; setTagField(nextField); setTagValue(tagOptions[nextField][0]); }}>{tagFields.map((field) => <option key={field}>{field}</option>)}</Select>
             <Select value={tagValue} onChange={(event) => setTagValue(event.target.value)}>{tagOptions[tagField].map((value) => <option key={value}>{value}</option>)}</Select>
             <Button onClick={addTag}>Add</Button>
           </div>
-          <div className="mt-2 flex flex-wrap gap-1">
-            {selectedTrack.tags.map((tag) => <button className="rounded border border-zinc-800 px-2 py-1 text-xs text-zinc-400" key={`${tag.field}-${tag.value}`} onClick={() => removeTag(tag)}>{tag.field}: {tag.value} ×</button>)}
+          <div className="mt-3 flex flex-wrap gap-2">
+            {selectedTrack.tags.map((tag) => <button className="rounded border border-[#34383b] px-2 py-1 text-xs text-[#9da2a6] hover:text-[#f0f2f2]" key={`${tag.field}-${tag.value}`} onClick={() => removeTag(tag)}>{tag.field}: {tag.value} x</button>)}
           </div>
           <div className="mt-3 grid grid-cols-[1fr_auto] gap-2">
             <Input placeholder="free tag" value={freeTag} onChange={(event) => setFreeTag(event.target.value)} />
             <Button onClick={addFreeTag}>Add</Button>
           </div>
-          <div className="mt-2 flex flex-wrap gap-1">
-            {selectedTrack.freeTags.map((tag) => <button className="rounded border border-zinc-800 px-2 py-1 text-xs text-zinc-400" key={tag} onClick={() => removeFreeTag(tag)}>{tag} ×</button>)}
+          <div className="mt-3 flex flex-wrap gap-2">
+            {selectedTrack.freeTags.map((tag) => <button className="rounded border border-[#34383b] px-2 py-1 text-xs text-[#9da2a6] hover:text-[#f0f2f2]" key={tag} onClick={() => removeFreeTag(tag)}>{tag} x</button>)}
           </div>
-          <textarea className="mt-3 min-h-20 w-full rounded border border-zinc-800 bg-zinc-950 p-2 text-zinc-100 outline-none focus:border-cyan-500" value={note || selectedTrack.notes || ""} onChange={(event) => setNote(event.target.value)} />
-          <Button className="mt-2 w-full" onClick={saveNote}>Save note</Button>
-          <div className="mt-3 grid grid-cols-[1fr_auto] gap-2">
-            <Select value={targetSetId} onChange={(event) => setTargetSetId(event.target.value)}>{sets.map((set) => <option value={set.id} key={set.id}>{set.name}</option>)}</Select>
-            <Button disabled={sets.length === 0} onClick={addToSet}>Add to set</Button>
+        </Section>
+
+        <Section title="Top Matches">
+          <div className="space-y-4">
+            {visibleMatches.map((match) => <MatchCard key={match.trackBId} match={match} />)}
+            {matches.length === 0 && <div className="text-sm text-[#858b90]">Select a track to calculate local matches.</div>}
+            {matches.length > 3 && <button className="w-full text-center text-sm text-[#9da2a6] transition hover:text-[#d9eef7]" onClick={() => setShowAllMatches((current) => !current)}>{showAllMatches ? "Show less" : "Show more"}</button>}
           </div>
         </Section>
       </div>
@@ -193,24 +193,19 @@ export function TrackDetailPanel() {
   );
 }
 
+function Field({ label, value }: { label: string; value: string }) {
+  return <div className="mb-8"><div className="mb-3 text-base text-[#8b9095]">{label}</div><div className="break-words text-lg leading-tight text-[#d9dddf]">{value}</div></div>;
+}
+
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
-  return <section className="border-b border-zinc-800 py-6"><h3 className="mb-4 text-xs font-semibold uppercase tracking-wide text-zinc-500">{title}</h3>{children}</section>;
-}
-
-function BigMetric({ label, value }: { label: string; value: string }) {
-  return <div><div className="text-3xl font-medium text-cyan-400">{value}</div><div className="mt-1 text-sm text-zinc-500">{label}</div></div>;
-}
-
-function Feature({ label, value, display }: { label: string; value: number; display?: string }) {
-  return <div className="mb-4 grid grid-cols-[120px_1fr_44px] items-center gap-3 text-sm"><span>{label}</span><span className="h-1.5 rounded-full bg-zinc-800"><span className="block h-full rounded-full bg-cyan-400" style={{ width: `${Math.min(1, Math.max(0, value)) * 100}%` }} /></span><span className="text-right text-zinc-500">{display ?? value.toFixed(2)}</span></div>;
+  return <section className="border-b border-[#303437] py-7"><h3 className="mb-4 text-base font-medium text-[#8b9095]">{title}</h3>{children}</section>;
 }
 
 function MatchCard({ match }: { match: MatchRecommendation }) {
   return (
-    <div className="grid grid-cols-[52px_1fr_40px] items-center gap-3">
-      <div className="size-12 rounded bg-gradient-to-br from-zinc-700 via-zinc-900 to-cyan-950" />
-      <div className="min-w-0 text-sm"><div className="truncate text-zinc-200">{match.track.title ?? match.track.fileName}</div><div className="truncate text-zinc-500">{match.track.artist ?? "Unknown"}</div><div className="mt-1 text-xs text-zinc-500">BPM {formatNumber(match.track.bpm, 0)} · Key {match.track.camelot ?? match.track.musicalKey ?? "--"}</div></div>
-      <div className="text-right text-2xl font-medium text-cyan-400">{Math.round(match.score)}</div>
+    <div className="grid grid-cols-[1fr_44px] items-center gap-3 rounded-md border border-[#303437] bg-[#111516] p-3">
+      <div className="min-w-0 text-sm"><div className="truncate text-[#e4e6e7]">{match.track.title ?? match.track.fileName}</div><div className="truncate text-[#858b90]">{match.track.artist ?? "Unknown"}</div><div className="mt-1 text-xs text-[#858b90]">BPM {formatNumber(match.track.bpm, 0)} · Key {match.track.camelot ?? match.track.musicalKey ?? "--"}</div></div>
+      <div className="text-right text-2xl font-medium text-[#78c7e8]">{Math.round(match.score)}</div>
     </div>
   );
 }

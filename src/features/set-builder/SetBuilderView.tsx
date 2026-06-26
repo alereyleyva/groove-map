@@ -35,24 +35,27 @@ export function SetBuilderView() {
   }
 
   return (
-    <div className="grid h-full grid-cols-[360px_1fr] gap-4 p-4">
-      <form className="space-y-3 rounded border border-zinc-800 bg-zinc-950 p-4" onSubmit={handleSubmit(onSubmit)}>
-        <h1 className="text-sm font-semibold uppercase tracking-wide text-zinc-300">Set Builder</h1>
+    <div className="grid h-full min-w-0 grid-cols-1 gap-5 p-5 lg:grid-cols-[360px_1fr] lg:p-8">
+      <form className="h-fit space-y-3 rounded-md border border-[#303437] bg-[#111516] p-5" onSubmit={handleSubmit(onSubmit)}>
+        <h1 className="text-lg font-medium text-[#f0f2f2]">Set Builder</h1>
+        <p className="text-sm text-[#858b90]">Generate a local heuristic draft from imported and analyzed tracks.</p>
         <Input placeholder="Set name" {...register("name")} />
         <Input placeholder="Duration minutes" type="number" {...register("durationTargetMinutes")} />
         <div className="grid grid-cols-2 gap-2"><Input placeholder="BPM min" type="number" {...register("bpmMin")} /><Input placeholder="BPM max" type="number" {...register("bpmMax")} /></div>
         <Select {...register("mood")}><option value="hypnotic">hypnotic</option><option value="dark">dark</option><option value="driving">driving</option><option value="raw">raw</option><option value="industrial">industrial</option></Select>
-        <Button className="w-full" type="submit">Generate draft</Button>
+        <Button className="w-full" tone="primary" type="submit">Generate Draft</Button>
       </form>
-      <section className="min-w-0 overflow-auto rounded border border-zinc-800 bg-zinc-950/80 p-4">
+      <section className="min-h-0 min-w-0 overflow-auto rounded-md border border-[#303437] bg-[#111516] p-5">
         {draft ? (
-          <div className="space-y-4">
-            <div className="flex items-start justify-between"><div><h2 className="text-xl font-semibold text-zinc-100">{draft.name}</h2><p className="text-sm text-zinc-500">{draft.explanation}</p></div><Button onClick={saveDraft}>Save as set</Button></div>
-            <div className="grid grid-cols-3 gap-2"><Stat label="Tracks" value={draft.tracks.length} /><Stat label="Duration" value={`${formatNumber(draft.totalDurationMinutes, 1)} min`} /><Stat label="Warnings" value={draft.warnings.length} /></div>
-            {draft.warnings.map((warning) => <div className="rounded border border-amber-500/30 bg-amber-500/10 p-3 text-sm text-amber-200" key={warning}>{warning}</div>)}
-            <div className="space-y-2">{draft.tracks.map((track, index) => <div className="grid grid-cols-[48px_1fr_80px_80px] rounded border border-zinc-900 bg-black/20 px-3 py-2 text-sm" key={track.id}><span className="text-zinc-500">{index + 1}</span><span>{track.artist ?? "--"} - {track.title ?? track.fileName}</span><span>{formatNumber(track.bpm, 1)}</span><span>{formatDuration(track.durationSeconds)}</span></div>)}</div>
+          <div className="space-y-5">
+            <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between"><div><h2 className="text-2xl font-semibold tracking-[-0.03em] text-[#f0f2f2]">{draft.name}</h2><p className="mt-1 text-sm text-[#858b90]">{draft.explanation}</p></div><Button tone="primary" onClick={saveDraft}>Save as Set</Button></div>
+            <div className="grid grid-cols-1 gap-2 md:grid-cols-3"><Stat label="Tracks" value={draft.tracks.length} /><Stat label="Duration" value={`${formatNumber(draft.totalDurationMinutes, 1)} min`} /><Stat label="Warnings" value={draft.warnings.length} /></div>
+            {draft.warnings.map((warning) => <div className="rounded-md border border-amber-400/30 bg-amber-400/10 p-3 text-sm text-amber-100" key={warning}>{warning}</div>)}
+            <div className="overflow-hidden rounded-md border border-[#303437]">
+              {draft.tracks.map((track, index) => <div className="grid min-h-14 grid-cols-[48px_minmax(160px,1fr)_80px_80px] items-center border-b border-[#262b2e] bg-[#101314] px-4 text-sm text-[#cfd3d6] last:border-b-0" key={track.id}><span className="text-[#858b90]">{index + 1}</span><span className="truncate text-[#f0f2f2]">{track.artist ?? "--"} - {track.title ?? track.fileName}</span><span>{formatNumber(track.bpm, 1)}</span><span>{formatDuration(track.durationSeconds)}</span></div>)}
+            </div>
           </div>
-        ) : <div className="p-10 text-center text-sm text-zinc-500">Generate a heuristic set draft from analyzed tracks.</div>}
+        ) : <div className="grid h-full place-items-center p-10 text-center text-sm text-[#858b90]">Generate a heuristic set draft from analyzed tracks.</div>}
       </section>
     </div>
   );
