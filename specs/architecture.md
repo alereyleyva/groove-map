@@ -17,6 +17,7 @@
 - SQLite is accessed through `rusqlite`.
 - Migrations are embedded and applied on startup.
 - Audio probing uses Symphonia where practical; unsupported metrics remain nullable.
+- The MVP must not require a Python or C++ sidecar.
 
 ## Clean Architecture Boundaries
 

@@ -4,6 +4,8 @@ Specs are canonical. Implementation must stay synchronized with these documents.
 
 Behavior specs use Gherkin (`Feature`, `Scenario`, `Given`, `When`, `Then`). The data model uses DBML.
 
+Product and feature behavior lives only in bounded context specs under `contexts/`.
+
 ## Bounded Contexts
 
 - `contexts/ingestion.md`: local source selection, scanning, hashing, metadata import.

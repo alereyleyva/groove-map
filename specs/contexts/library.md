@@ -3,11 +3,20 @@
 Feature: Library
   Library owns track exploration, dense table display, search, filters, selection, and track detail access.
 
+  Scenario: Serve local DJ library preparation
+    Given the user is a techno DJ with local audio files
+    When the user opens Library
+    Then GrooveMap supports preparing a downloaded music collection
+    And GrooveMap does not behave as a generic streaming player
+
   Scenario: Display the main library table
     Given tracks exist in the local database
     When the user opens Library
     Then tracks are displayed in a dense dark table
     And the table includes title, artist, BPM, key, energy, mood, function, style, duration, rating, status, and path in the current MVP
+    And the interface is dense but legible
+    And the primary workflow is table-first
+    And filters are clear and keyboard-friendly
 
   Scenario: Filter library tracks
     Given tracks exist in the local database

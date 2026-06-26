@@ -60,6 +60,12 @@ Feature: Matching
     When the recommendations are displayed in the track detail panel
     Then each recommendation shows the candidate title, artist, BPM, key, score, indicator, and explanation
 
+  Scenario: Suggest enough match candidates for preparation
+    Given enough library data exists
+    When GrooveMap suggests candidate matches for a track
+    Then GrooveMap returns at least 10 candidate matches
+    And recommendations are explained with musical reasoning
+
   Scenario: Known matching gaps
     Then context-aware matching is not complete yet
     And settings-driven weights are not complete yet

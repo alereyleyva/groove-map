@@ -26,13 +26,12 @@ The app must never upload audio, metadata, analysis, or user configuration to an
 ## Canonical Specs
 
 - Specs index: `specs/README.md`
-- Product spec: `specs/product.md`
 - Architecture spec: `specs/architecture.md`
 - Data model spec: `specs/data-model.dbml`
 - Design spec: `DESIGN.md`
 - Testing spec: `specs/testing.md`
 - Gap analysis: `specs/gap-analysis.md`
-- Bounded context specs live under `specs/contexts/` and are the primary source for feature behavior:
+- Product and feature behavior specs live under `specs/contexts/` and are the primary source for behavior:
 - Ingestion: `specs/contexts/ingestion.md`
 - Library: `specs/contexts/library.md`
 - Tagging: `specs/contexts/tagging.md`

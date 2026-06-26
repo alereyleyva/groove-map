@@ -15,6 +15,10 @@ Feature: Analysis
     Then GrooveMap shows the metric as unavailable or not analyzed
     And GrooveMap does not treat the missing metric as zero
 
+  Scenario: Communicate analysis confidence honestly
+    Then GrooveMap does not promise perfect BPM or key detection
+    And GrooveMap stores confidence where available
+
   Scenario: Required analysis metrics
     Then analysis eventually supports duration, estimated BPM, BPM confidence, key, mode, Camelot, loudness, RMS, peak level, dynamic range, energy, danceability, percussiveness, brightness, darkness, low-end intensity, kick density, spectral centroid, spectral contrast, intro, outro, breakdown, main section estimates, and cue suggestions
 

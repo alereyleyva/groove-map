@@ -3,11 +3,18 @@
 Feature: Settings and Privacy
   Settings and Privacy owns local preferences, matching weights, analysis defaults, filesystem permissions, database safety, and privacy guarantees.
 
+  Background:
+    Given GrooveMap stores all application state locally
+
   Scenario: Store settings locally
     Given the user changes app settings
     When the settings are saved
     Then settings are persisted in the local SQLite database
     And settings are available after app restart
+
+  Scenario: Persist local DJ preparation state
+    When the user prepares their library and sets
+    Then GrooveMap persists sources, tracks, analysis state, tags, ratings, notes, sets, and settings locally in SQLite
 
   Scenario: Preserve privacy guarantees
     Given GrooveMap imports local music
@@ -15,6 +22,8 @@ Feature: Settings and Privacy
     And GrooveMap never uploads metadata
     And GrooveMap never uploads analysis
     And GrooveMap never uploads settings
+    And GrooveMap never uploads user configuration
+    And GrooveMap does not provide cloud sync
     And GrooveMap never mutates original audio files
     And removing a source never deletes files from disk
 
